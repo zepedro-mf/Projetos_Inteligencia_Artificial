@@ -5,102 +5,102 @@
 
 %=========================================================================
 
-%                                 FAKE DATA
+%                                 DADOS FALSOS
 
 
-% patient(ID, Name, Age, Sex, City)
-% Random data about patients to be called later
-patient(p1, 'Alice Silva', 35, female, 'Lisbon').
-patient(p2, 'Bruno Costa', 52, male, 'Porto').
-patient(p3, 'Carla Mendes', 68, female, 'Coimbra').
-patient(p4, 'Daniel Rocha', 41, male, 'Braga').
-patient(p5, 'Eva Martins', 27, female, 'Faro').
-patient(p6, 'Filipe Sousa', 59, male, 'Aveiro').
-patient(p7, 'Gabriela Pinto', 73, female, 'Setubal').
-patient(p8, 'Hugo Almeida', 46, male, 'Leiria').
-patient(p9, 'Ines Carvalho', 31, female, 'Viseu').
-patient(p10, 'Joao Ferreira', 64, male, 'Evora').
-% (add more later up to 10)
+% paciente(ID, Nome, Idade, Sexo, Cidade)
+% Dados aleatórios sobre pacientes para serem chamados mais tarde
+paciente(p1, 'Alice Silva', 35, feminino, 'Lisboa').
+paciente(p2, 'Bruno Costa', 52, masculino, 'Porto').
+paciente(p3, 'Carla Mendes', 68, feminino, 'Coimbra').
+paciente(p4, 'Daniel Rocha', 41, masculino, 'Braga').
+paciente(p5, 'Eva Martins', 27, feminino, 'Faro').
+paciente(p6, 'Filipe Sousa', 59, masculino, 'Aveiro').
+paciente(p7, 'Gabriela Pinto', 73, feminino, 'Setúbal').
+paciente(p8, 'Hugo Almeida', 46, masculino, 'Leiria').
+paciente(p9, 'Inês Carvalho', 31, feminino, 'Viseu').
+paciente(p10, 'João Ferreira', 64, masculino, 'Évora').
+% (adicionar mais depois até 10)
 
-% consultation(ID, Date, PatientID, Doctor, Systolic, Diastolic)
-% ID = the consultation id itself
-% Date = date of the consultation
-% Doctor = who performed the consultation
-% S, D and P are measurements taken during the consultation
+% consulta(ID, Data, PacienteID, Medico, Sistólica, Diastólica)
+% ID = identificador da consulta
+% Data = data da consulta
+% Medico = quem realizou a consulta
+% S, D e P são medições feitas durante a consulta
 % =========================================
-% Consultation Data (20 total)
+% Dados das Consultas (20 no total)
 % =========================================
 
-consultation(c1,  '2025-03-10', p1, dr_silva, 120, 80, 72).   
-consultation(c2,  '2025-06-15', p1, dr_silva, 135, 85, 75).   
-consultation(c3,  '2025-03-11', p2, dr_mendes, 150, 95, 85).  
-consultation(c4,  '2025-09-12', p2, dr_mendes, 145, 90, 82).  
-consultation(c5,  '2025-03-12', p3, dr_lima, 90, 55, 70).     
-consultation(c6,  '2025-07-20', p3, dr_lima, 100, 65, 74).    
-consultation(c7,  '2025-03-15', p4, dr_mendes, 130, 85, 76).  
-consultation(c8,  '2025-04-18', p4, dr_silva, 160, 100, 82).  
-consultation(c9,  '2025-03-18', p5, dr_silva, 115, 78, 70).   
-consultation(c10, '2025-05-22', p5, dr_oliveira, 118, 79, 71).
-consultation(c11, '2025-03-20', p6, dr_lima, 162, 102, 88).   
-consultation(c12, '2025-07-25', p6, dr_silva, 155, 95, 83).   
-consultation(c13, '2025-10-02', p6, dr_mendes, 138, 89, 79).  
-consultation(c14, '2025-03-22', p7, dr_mendes, 145, 92, 88).  
-consultation(c15, '2025-09-05', p7, dr_mendes, 142, 91, 90).  
-consultation(c16, '2025-03-25', p8, dr_silva, 105, 68, 65).  
-consultation(c17, '2025-07-30', p8, dr_lima, 98, 58, 60).     
-consultation(c18, '2025-03-26', p9, dr_lima, 95, 55, 60).     
-consultation(c19, '2025-06-01', p9, dr_silva, 102, 66, 68).   
-consultation(c20, '2025-03-30', p10, dr_mendes, 138, 85, 78). 
+consulta(c1,  '2025-03-10', p1, dr_silva, 120, 80, 72).   
+consulta(c2,  '2025-06-15', p1, dr_silva, 135, 85, 75).   
+consulta(c3,  '2025-03-11', p2, dr_mendes, 150, 95, 85).  
+consulta(c4,  '2025-09-12', p2, dr_mendes, 145, 90, 82).  
+consulta(c5,  '2025-03-12', p3, dr_lima, 90, 55, 70).     
+consulta(c6,  '2025-07-20', p3, dr_lima, 100, 65, 74).    
+consulta(c7,  '2025-03-15', p4, dr_mendes, 130, 85, 76).  
+consulta(c8,  '2025-04-18', p4, dr_silva, 160, 100, 82).  
+consulta(c9,  '2025-03-18', p5, dr_silva, 115, 78, 70).   
+consulta(c10, '2025-05-22', p5, dr_oliveira, 118, 79, 71).
+consulta(c11, '2025-03-20', p6, dr_lima, 162, 102, 88).   
+consulta(c12, '2025-07-25', p6, dr_silva, 155, 95, 83).   
+consulta(c13, '2025-10-02', p6, dr_mendes, 138, 89, 79).  
+consulta(c14, '2025-03-22', p7, dr_mendes, 145, 92, 88).  
+consulta(c15, '2025-09-05', p7, dr_mendes, 142, 91, 90).  
+consulta(c16, '2025-03-25', p8, dr_silva, 105, 68, 65).  
+consulta(c17, '2025-07-30', p8, dr_lima, 98, 58, 60).     
+consulta(c18, '2025-03-26', p9, dr_lima, 95, 55, 60).     
+consulta(c19, '2025-06-01', p9, dr_silva, 102, 66, 68).   
+consulta(c20, '2025-03-30', p10, dr_mendes, 138, 85, 78). 
 
 
 %==========================================================================
 
-% classification(Type, Systolic, Diastolic)
-% Uses the measurements to check if they fit within certain criteria
-% to determine what type of blood pressure you have
-classification(hypotension, S, D) :- S < 100; D < 60.
-classification(normal, S, D) :- S >= 100, S < 140, D >= 60, D < 90.
-classification(hypertension, S, D) :- S >= 140; D >= 90.
+% classificacao(Tipo, Sistólica, Diastólica)
+% Usa as medições para verificar se estão dentro de certos critérios
+% para determinar o tipo de pressão arterial
+classificacao(hipotensao, S, D) :- S < 100; D < 60.
+classificacao(normal, S, D) :- S >= 100, S < 140, D >= 60, D < 90.
+classificacao(hipertensao, S, D) :- S >= 140; D >= 90.
 
-% coherence rule -> to make sure there weren't any significant mistakes during measuring
-coherent(S, D) :- S > D.
+% regra de coerência -> para garantir que não houve erros significativos durante a medição
+coerente(S, D) :- S > D.
 
-% classify consultation
-% to find out the result type of a specific consultation
-classify_consultation(ID, Category) :-
-    consultation(ID, _, _, _, S, D),
-    classification(Category, S, D).
+% classificar consulta
+% para descobrir o tipo de resultado de uma consulta específica
+classificar_consulta(ID, Categoria) :-
+    consulta(ID, _, _, _, S, D),
+    classificacao(Categoria, S, D).
 
-% valid consultation (systolic > diastolic)
-valid_consultation(ID) :-
-    consultation(ID, _, _, _, S, D),
-    coherent(S, D).
+% consulta válida (sistólica > diastólica)
+consulta_valida(ID) :-
+    consulta(ID, _, _, _, S, D),
+    coerente(S, D).
 
-% Find all consultations by a given patient
-% consultations_by_patient('Alice Silva', ID).
-consultations_by_patient(PatientName, ConsultationID) :-
-    patient(PID, PatientName, _, _, _),
-    consultation(ConsultationID, _, PID, _, _, _).
+% Encontrar todas as consultas de um determinado paciente
+% consultas_por_paciente('Alice Silva', ID).
+consultas_por_paciente(NomePaciente, IDConsulta) :-
+    paciente(PID, NomePaciente, _, _, _),
+    consulta(IDConsulta, _, PID, _, _, _).
 
-%  Find all consultations by a specific doctor
-%  consultations_by_doctor(dr_mendes, ID).
-consultations_by_doctor(Doctor, ConsultationID) :-
-    consultation(ConsultationID, _, _, Doctor, _, _).
+% Encontrar todas as consultas de um determinado Médico
+% consultas_por_medico(dr_mendes, ID).
+consultas_por_medico(Medico, IDConsulta) :-
+    consulta(IDConsulta, _, _, Medico, _, _).
 
-% Find all patients within a certain age range
-% patients_in_age_range(30, 50, Name).
-patients_in_age_range(MinAge, MaxAge, Name) :-
-    patient(_, Name, Age, _, _),
-    Age >= MinAge,
-    Age =< MaxAge.
+% Encontrar todos os pacientes dentro de um certo intervalo de idades
+% pacientes_por_idade(30, 50, Nome).
+pacientes_por_idade(IdadeMin, IdadeMax, Nome) :-
+    paciente(_, Nome, Idade, _, _),
+    Idade >= IdadeMin,
+    Idade =< IdadeMax.
 
 
-% NOW THESE ARE THINGS I'LL NEED TO ASK PROLOG TO GET SPERCIFY FUNCTION? ANSWER?
+% AGORA ESTES SÃO OS PEDIDOS QUE PRECISO DE FAZER AO PROLOG PARA OBTER UMA FUNÇÃO/RESPOSTA ESPECÍFICA
 
-%   Show all patients =================>     consultation(ID, Date, PID, Doctor, S, D, P).	
-%   Classify one consultation ========>	     classify_consultation(c1, Category).	
-%   Classify all consultation ========>	     classify_consultation(ID, Category).	
-%   Validate readings	================>    valid_consultation(ID).	
-%   Find consultations by patient ====> 	 consultations_by_patient('Alice Silva', ID).	
-%   Find consultations by doctor	====>    consultations_by_doctor(dr_mendes, ID).	
-%   Patients by age range	============>    patients_in_age_range(30, 60, Name).
+%   Mostrar todos os pacientes ==============>     consulta(ID, Data, PID, Medico, S, D, P).	
+%   Classificar uma consulta ===============>	     classificar_consulta(c1, Categoria).	
+%   Classificar todas as consultas ==========>	     classificar_consulta(ID, Categoria).	
+%   Validar medições ========================>      consulta_valida(ID).	
+%   Consultas por paciente ================> 	 consultas_por_paciente('Alice Silva', ID).	
+%   Consultas por Médico ==================>      consultas_por_medico(dr_mendes, ID).	
+%   Pacientes por intervalo de idade =======>      pacientes_por_idade(30, 60, Nome).
