@@ -357,3 +357,39 @@ classificacao_intervalar(Syst, DiastInt, Classe) :-
 % Caso sem imprecisão -> delega para classificação normal
 classificacao_intervalar(Syst, Diast, Classe) :-
     classifica_pressao(Syst, Diast, Classe).
+
+% Correção: Redefinir operador para melhor associatividade
+:- op(100, xfx, ::).
+
+% Adição: Novo tipo de nulo para probabilidade
+nulo(probabilidade(_)).
+
+% Correção: Melhorar evolucao/1 com catch para rollback robusto
+evolucao(Termo) :-
+    findall(Inv, +Termo::Inv, ListaInv),
+    catch(
+        (assertz(Termo), teste(ListaInv)),
+        _Exception,
+        (retract(Termo), fail)  % Rollback em caso de erro
+    ).
+
+% Adição: Predicado para inserir negação
+inserir_negacao_paciente(ID, Nome, DataNasc, Sexo, Morada) :-
+    evolucao('-paciente'(ID, Nome, DataNasc, Sexo, Morada)).
+
+% Adição: Invariante para idade coerente (aproximada)
++paciente(ID, Nome, DataNasc, Sexo, Morada) :: (
+    (DataNasc = impreciso(D1, D2) -> true ;  % Pular se impreciso
+     calcular_idade_aprox(DataNasc, IdadeAprox), IdadeAprox >= 0)
+).
+
+% Adição: Inferência avançada
+inferir_condicao(PID, cronico) :-
+    findall(_, (consulta(_, _, PID, _, D, S, _), classifica_pressao(S, D, hipertensao)), L),
+    length(L, N), N > 2.
+
+% Adição: Relatório integrado
+gerar_relatorio(PID) :-
+    paciente(PID, Nome, _, _, _),
+    findall(Classe, (consulta(_, _, PID, _, D, S, _), classificacao_intervalar(S, D, Classe)), Classes),
+    format('Relatório para ~w (ID: ~w): Condições ~w~n', [Nome, PID, Classes]).
