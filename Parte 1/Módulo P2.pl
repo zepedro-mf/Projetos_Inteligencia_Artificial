@@ -20,6 +20,15 @@ consulta(c1, date(2025,10,10), p1, 45, 80, 120, 58, 48, 165, 38).  % tensão nor
 consulta(c2, date(2025,10,12), p2, 50, 95, 150, 103, 90, 180, 36).  % hipertensão, taquicardia, sobrepeso, temperatura normal
 consulta(c3, date(2025,10,15), p3, 34, 55, 85, 65, 75, 16, 34.5).   % hipotensão, pulsação normal, peso normal, hipotermia
 
+% tensao_arterial(IdTA, Classificacao, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup)
+tensao_arterial(ta01, hipotensao, 0, 90, 0, 60).
+tensao_arterial(ta02, otima, 90, 120, 60, 80).
+tensao_arterial(ta03, normal, 120, 130, 80, 85).
+tensao_arterial(ta04, normal_alta, 130, 140, 85, 90).
+tensao_arterial(ta05, hipertensao_grau1, 140, 160, 90, 100).
+tensao_arterial(ta06, hipertensao_grau2, 160, 180, 100, 110).
+tensao_arterial(ta07, hipertensao_grau3, 180, 300, 110, 300).
+
 
 % --------------------------------------------
 % 1. Negação por falha
@@ -118,6 +127,34 @@ siD( Q1, Q2, desconhecido) :-
 % --------------------------------------------
 % 4. Regras de diagnóstico
 % --------------------------------------------
+% Classificação da Tensão Arterial usando si/2
+classificar_ta(Sistolica, Diastolica, Res) :-
+    tensao_arterial(_, Classificacao, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup),
+    Sistolica >= SistolicaInf,
+    Sistolica =< SistolicaSup,
+    Diastolica >= DiastolicaInf,
+    Diastolica =< DiastolicaSup,
+    Res = Classificacao.
+
+% Cálculo com verificação de coerência
+calcular_classificacao_ta(IdPac, Classificacao) :-
+    consulta(_,(_,_,_),IdPac,_, Diastolica, Sistolica, _),
+    classificar_ta(Sistolica, Diastolica, Classificacao).
+
+% Diagnósticos específicos usando negação
+pacientes_hipertensos(Pacientes) :-
+    findall(Nome, 
+            (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+             paciente(IdPac,Nome,_,_,_),
+             (Diastolica > 90; Sistolica > 140)), 
+            Pacientes).
+
+% Verificação de condição específica
+tem_ta_otima(IdPac) :-
+    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+    classificar_ta(Sistolica, Diastolica, otima).
+
+
 
 % Classificação de tensão arterial pontual
 classifica_tensao(S, D, Classificacao) :-
