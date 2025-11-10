@@ -13,9 +13,9 @@
 % --------------------------------------------
 
 % paciente(IdPaciente, Nome, DataNascimento, Sexo, Morada)
-paciente(p1, 'Ana Silva', date(1980,5,10), f, 'Rua A, 12').
-paciente(p2, 'João Costa', date(1975,2,20), m, 'Rua B, 45').
-paciente(p3, 'Maria Dias', date(1990,7,1), f, 'Rua C, 9').
+paciente(p1, 'Ana Silva', date(1980,5,10), 'masculino', 'Rua A, 12').
+paciente(p2, 'João Costa', date(1975,2,20), 'masculino', 'Rua B, 45').
+paciente(p3, 'Maria Dias', date(1990,7,1), 'feminino', 'Rua C, 9').
 
 % consulta(IdConsulta, Data, IdPaciente, Idade, Diastolica, Sistolica, Pulsacao, Peso, Altura, Temperatura)
 consulta(c1, date(2025,10,10), p1, 45, 80, 120, 58, 48, 165, 38).  % tensão normal, bradicardia, magreza, febre
