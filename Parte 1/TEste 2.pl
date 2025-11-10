@@ -104,7 +104,6 @@ paciente(p006, 'Eduardo Gomes', date(1959,3,30), 'masculino', 'Lg. F, 2').
 paciente(p007, 'Filipa Henriques', date(1989,4,12), 'feminino', 'Pr. G, 15').
 paciente(p008, 'Gonçalo Isidro', date(1977,1,7), 'masculino', 'Beco H, 3').
 paciente(p009, 'Inês Janeiro', date(1996,10,25), 'feminino', 'Estrada I, 7').
-% Mapeamento ID: 1002->p001, 1005->p002, 1009->p003, 1003->p004, 1004->p005, 1006->p006, 1007->p007, 1008->p008, 1010->p009
 
 % Factos de consulta/7 (IDs de Consulta e Paciente atualizados)
 % consulta(IdConsulta, Data, IdPaciente, Idade, Diastolica, Sistolica, Pulsacao)
