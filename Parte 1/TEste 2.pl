@@ -164,12 +164,6 @@ interdito(num_desconhecido).
      comprimento(S,N),
      N == 1).
 
-% Idade consistente com data de nascimento
-+consulta(_,Data,Pac,Idade,_,_,_) ::
-    (paciente(Pac,_,date(AnoN,MesN,DiaN),_,_),
-     Data = (DiaA,MesA,AnoA),
-     IdadeCalculada is AnoA - AnoN - ((MesA < MesN; (MesA =:= MesN, DiaA < DiaN))),
-     Idade =:= IdadeCalculada).
 
 % Valores fisiológicos realistas
 +consulta(_,_,_,_,Dia,Sis,Pulso) ::
@@ -292,3 +286,125 @@ testar([]).
 testar([Inv|R]) :-
     call(Inv),
     testar(R).
+
+
+
+demo :-
+    format('~n============================================~n', []),
+    format('   DEMONSTRAÇÃO DO SISTEMA IAEB (TG1 2025)   ~n', []),
+    format('============================================~n~n', []),
+
+    % 1. Pacientes e consultas
+    format('--- [1] PACIENTES E CONSULTAS ---~n', []),
+    listar_pacientes,
+    nl,
+    listar_consultas(p001),
+    listar_consultas(p004),
+    nl,
+
+    % 2. Relatórios detalhados
+    format('--- [2] RELATÓRIOS DETALHADOS ---~n', []),
+    relatorio_paciente_detalhado(p003),
+    nl,
+    relatorio_paciente_detalhado(p009),
+    nl,
+
+    % 3. Classificação e risco
+    format('--- [3] CLASSIFICAÇÃO E RISCO ---~n', []),
+    mostrar_classificacao_risco(p001),
+    mostrar_classificacao_risco(p005),
+    mostrar_classificacao_risco(p008),
+    nl,
+
+    % 4. Sistema de inferência
+    format('--- [4] SISTEMA DE INFERÊNCIA (si/2) ---~n', []),
+    testar_si,
+    nl,
+
+    % 5. Conhecimento imperfeito
+    format('--- [5] CONHECIMENTO IMPERFEITO ---~n', []),
+    testar_imperfeito,
+    nl,
+
+    % 6. Evolução e Involução
+    format('--- [6] EVOLUÇÃO / INVOLUÇÃO ---~n', []),
+    testar_evolucao,
+    nl,
+
+    % 7. Invariantes
+    format('--- [7] INVARIANTES ---~n', []),
+    testar_invariantes,
+    nl,
+
+    % 8. Estatísticas extra
+    format('--- [8] ESTATÍSTICAS ---~n', []),
+    estatisticas,
+    nl,
+
+    format('============================================~n', []),
+    format(' DEMONSTRAÇÃO CONCLUÍDA COM SUCESSO ✅~n', []),
+    format('============================================~n', []).
+
+% --------------------------------------------
+% AUXILIARES DE DEMONSTRAÇÃO
+% --------------------------------------------
+
+mostrar_classificacao_risco(Pac) :-
+    classificar_tensao(Pac, Classe),
+    avaliar_risco(Pac, Risco),
+    format('Paciente ~w -> Classe: ~w | Risco: ~w~n', [Pac, Classe, Risco]).
+
+testar_si :-
+    si(paciente(p001,'Ana Silva',_,_,_), R1),
+    si(paciente(p099,'Desconhecido',_,_,_), R2),
+    si(-paciente(636237854, jose, (10,2,1969), masculino, cascais), R3),
+    format('si(paciente(p001,...)) -> ~w~n', [R1]),
+    format('si(paciente inexistente) -> ~w~n', [R2]),
+    format('si(-paciente(...)) -> ~w~n', [R3]).
+
+testar_imperfeito :-
+    consulta(c_incerto_001, _, p001, _, _, _, Puls),
+    format('Caso INCERTO -> Pulsação desconhecida: ~w~n', [Puls]),
+    findall((Dia,Sis,Pulso),
+        excecao(consulta(c_impreciso_001, _, p002, _, Dia, Sis, Pulso)), L1),
+    format('Caso IMPRECISO -> Valores possíveis: ~w~n', [L1]),
+    paciente(Id, dario, _, _, _),
+    format('Caso INTERDITO -> Id paciente = ~w (interdito)~n', [Id]).
+
+testar_evolucao :-
+    format('Inserir paciente p010...~n', []),
+    (evolucao(paciente(p010, 'Helena Martins', date(1982,6,6), 'feminino', 'Rua Nova, 10')) ->
+        format('Paciente p010 inserido com sucesso.~n', [])
+    ; format('Falha ao inserir p010.~n', [])),
+
+    format('Inserir consulta c010...~n', []),
+    (evolucao(consulta(c010, (20,1,2025), p010, 42, 82, 130, 70)) ->
+        format('Consulta c010 inserida com sucesso.~n', [])
+    ; format('Falha ao inserir consulta c010.~n', [])),
+
+    relatorio_paciente_detalhado(p010),
+
+    format('Remover consulta c010...~n', []),
+    (involucao(consulta(c010, (20,1,2025), p010, 42, 82, 130, 70)) ->
+        format('Consulta c010 removida com sucesso.~n', [])
+    ; format('Falha ao remover consulta c010.~n', [])).
+
+testar_invariantes :-
+    format('Tentar inserir idade inconsistente (falha esperada)...~n', []),
+    (evolucao(consulta(c011, (10,1,2024), p001, 99, 80, 120, 70)) ->
+        format('Erro: foi aceite idade inconsistente!~n', [])
+    ; format('OK: rejeitada por idade inconsistente.~n', [])),
+
+    format('Tentar inserir valores fisiológicos inválidos (falha esperada)...~n', []),
+    (evolucao(consulta(c012, (11,1,2024), p001, 44, 200, 100, 70)) ->
+        format('Erro: foi aceite TA inválida!~n', [])
+    ; format('OK: rejeitada por valores fisiológicos incorretos.~n', [])).
+
+estatisticas :-
+    findall((Pac,Classe), classificar_tensao(Pac,Classe), L),
+    length(L,Total),
+    findall(P, tem_hipertensao(P), LHip),
+    length(LHip, NHip),
+    format('Total de pacientes classificados: ~w~n', [Total]),
+    format('Total com hipertensão: ~w~n', [NHip]),
+    format('Percentagem: ~2f %%~n', [(NHip/Total)*100]).
