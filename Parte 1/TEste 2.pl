@@ -159,9 +159,40 @@ avaliar_risco(Pac, alto) :-
 
 avaliar_risco(_, desconhecido).
 
-relatorio_paciente(Pac) :-
-    paciente(Pac,Nome,_,_),
-    classificar_tensao(Pac, Classe),
-    avaliar_risco(Pac, Risco),
-    format('Paciente: ~w~nClassificação: ~w~nRisco: ~w~n', 
-           [Nome, Classe, Risco]).
+% =========================================================
+%             10. CONSULTAS E RELATÓRIOS
+% =========================================================
+
+% Relatório detalhado
+relatorio_paciente_detalhado(Pac) :-
+    paciente(Pac, Nome, DataNasc, Sexo),
+    (classificar_tensao(Pac, Classe) -> true ; Classe = 'indeterminado'),
+    (avaliar_risco(Pac, Risco) -> true ; Risco = 'indeterminado'),
+    
+    format('=== RELATORIO MEDICO DETALHADO ===~n', []),
+    format('Paciente: ~w~n', [Nome]),
+    format('Data Nascimento: ~w~n', [DataNasc]),
+    format('Sexo: ~w~n', [Sexo]),
+    format('Classificação Tensão: ~w~n', [Classe]),
+    format('Nível de Risco: ~w~n', [Risco]),
+    format('--- Histórico de Consultas ---~n', []),
+    listar_consultas(Pac).
+
+% Listar consultas de um paciente
+listar_consultas(Pac) :-
+    findall((Data, Dia, Sis, Pulso), consulta(_, Data, Pac, _, Dia, Sis, Pulso), L),
+    (L = [] -> 
+        format('  Sem consultas registadas~n', [])
+    ;
+        format('Consultas do paciente ~w:~n', [Pac]),
+        listar_consultas_aux(L)
+    ).
+
+listar_consultas_aux([]).
+listar_consultas_aux([(Data,Dia,Sis,Pulso)|T]) :-
+    (Pulso == desconhecido ->
+        format('  Data: ~w - TA: ~w/~w - Pulsação: não registada~n', [Data, Sis, Dia])
+    ;
+        format('  Data: ~w - TA: ~w/~w - Pulsação: ~w~n', [Data, Sis, Dia, Pulso])
+    ),
+    listar_consultas_aux(T).
