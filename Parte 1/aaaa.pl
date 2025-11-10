@@ -29,4 +29,3 @@
 %     → evolucao(Termo)
 %     → involucao(Termo)
 %     com verificação antes de alterar o conhecimento
-% aaaaaaaa
