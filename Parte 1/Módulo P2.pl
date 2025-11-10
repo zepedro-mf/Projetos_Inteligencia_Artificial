@@ -29,7 +29,7 @@ nao(_).
 
 
 % --------------------------------------------
-% 2. Conhecimento negativo explícito
+% 2. Conhecimento negativo
 % --------------------------------------------
 % Pressuposto Mundo Fechado
 -paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada) :- 
@@ -41,28 +41,10 @@ nao(_).
     nao(excecao(consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao))).
 
 % Conhecimento perfeito negativo explícito
--paciente(636237854, jose, (10,2,1969), masculino, cascais).
--paciente(325544694, ricardo, (5,5,2005), masculino, faro).
--consulta(cons356, (25,12,2023), 237987543, 23, 80, 130, 70).
-
-
-% O paciente José faleceu e portanto deixou de ser paciente na clínica
--paciente(636237854, jose, (10,2,1969), masculino, cascais).
-
-% O paciente Ricardo não gostou da clínica, então não se tornou paciente
--paciente(325544694, ricardo, (5,5,2005), masculino, faro).
-
-% A clínica não esteve aberta no dia 25/12, logo não existem consultas nesse dia
--consulta(cons356, (25,12,2023), 237987543, 23, 80, 130, 70).
-
-% Paciente que foi transferido para outra clínica
--paciente(789123456, miguel, (15,8,1978), masculino, coimbra).
-
-% Consulta cancelada por motivos de saúde do Médico
--consulta(cons999, (14,2,2024), 123456780, 58, 0, 0, 0).
-
-% Consulta não marcada devido a falha no sistema
--consulta(cons888, (28,1,2024), 987654321, 36, 0, 0, 0).             
+-paciente(636237854, jose, (10,2,1969), masculino, cascais). % Paciente que faleceu
+-paciente(325544694, ricardo, (5,5,2005), masculino, faro). % Paciente que mudou que clínica
+-consulta(_, (25,12,2023), _, _, _, _, _). % Dia de greve dos funcionários da clínica
+-consulta(cons999, (14,2,2024), _, _, _, _, _). % Dia em que o Médico adoeceu         
 
 
 % --------------------------------------------
