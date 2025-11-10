@@ -11,14 +11,20 @@
 % 0. Base de Dados
 % --------------------------------------------
 % paciente(IdPaciente, Nome, DataNascimento, Sexo, Morada)
-paciente(p1, 'Ana Silva', date(1980,5,10), 'masculino', 'Rua A, 12').
-paciente(p2, 'João Costa', date(1975,2,20), 'masculino', 'Rua B, 45').
-paciente(p3, 'Maria Dias', date(1990,7,1), 'feminino', 'Rua C, 9').
+paciente(1002, 'Ana Silva', date(1980,5,10), 'masculino', 'Rua A, 12').
+paciente(1005, 'João Costa', date(1975,2,20), 'masculino', 'Rua B, 45').
+paciente(1009, 'Maria Dias', date(1990,7,1), 'feminino', 'Rua C, 9').
 
-% consulta(IdConsulta, Data, IdPaciente, Idade, Diastolica, Sistolica, Pulsacao, Peso, Altura, Temperatura)
-consulta(c1, date(2025,10,10), p1, 45, 80, 120, 58, 48, 165, 38).  % tensão normal, bradicardia, magreza, febre
-consulta(c2, date(2025,10,12), p2, 50, 95, 150, 103, 90, 180, 36).  % hipertensão, taquicardia, sobrepeso, temperatura normal
-consulta(c3, date(2025,10,15), p3, 34, 55, 85, 65, 75, 16, 34.5).   % hipotensão, pulsação normal, peso normal, hipotermia
+% consulta(IdConsulta, Data, IdPaciente, Idade, Diastolica, Sistolica, Pulsacao)
+consulta(cons_2024_002, (9,1,2024), 1002, 38, 82, 125, 72). % TA Normal
+consulta(cons_2024_003, (10,1,2024), 1003, 58, 92, 148, 76). % Hipertensão Grau 1
+consulta(cons_2024_004, (11,1,2024), 1004, 31, 76, 118, 65). % TA Ótima
+consulta(cons_2024_005, (12,1,2024), 1005, 51, 88, 138, 74). % TA Normal Alta
+consulta(cons_2024_006, (15,1,2024), 1006, 65, 105, 168, 82). % hipertensão Grau 2
+consulta(cons_2024_007, (16,1,2024), 1007, 35, 84, 128, 70). % TA Normal
+consulta(cons_2024_008, (17,1,2024), 1008, 48, 95, 152, 78). % Hipertensão Grau 1
+consulta(cons_2024_009, (18,1,2024), 1009, 55, 79, 119, 66). % TA Ótima
+consulta(cons_2024_010, (19,1,2024), 1010, 28, 58, 88, 62). % Hipotensão
 
 % tensao_arterial(IdTA, Classificacao, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup)
 tensao_arterial(ta01, hipotensao, 0, 90, 0, 60).
@@ -125,9 +131,10 @@ siD( Q1, Q2, desconhecido) :-
 
 
 % --------------------------------------------
-% 4. Regras de diagnóstico
+% 4. Regras de diagnóstico da tensão arterial
 % --------------------------------------------
-% Classificação da Tensão Arterial usando si/2
+
+% Classificação pontual da tensão arterial
 classificar_ta(Sistolica, Diastolica, Res) :-
     tensao_arterial(_, Classificacao, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup),
     Sistolica >= SistolicaInf,
@@ -136,12 +143,16 @@ classificar_ta(Sistolica, Diastolica, Res) :-
     Diastolica =< DiastolicaSup,
     Res = Classificacao.
 
-% Cálculo com verificação de coerência
-calcular_classificacao_ta(IdPac, Classificacao) :-
+% Classificação da tensão arterial de um paciente
+classificar_ta_paciente(IdPac, Res) :-
     consulta(_,(_,_,_),IdPac,_, Diastolica, Sistolica, _),
-    classificar_ta(Sistolica, Diastolica, Classificacao).
+    Sistolica >= SistolicaInf,
+    Sistolica =< SistolicaSup,
+    Diastolica >= DiastolicaInf,
+    Diastolica =< DiastolicaSup,
+    Res = Classificacao.
 
-% Diagnósticos específicos usando negação
+% Diagnóstico específico de hipertensao
 pacientes_hipertensos(Pacientes) :-
     findall(Nome, 
             (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
@@ -156,70 +167,20 @@ tem_ta_otima(IdPac) :-
 
 
 
-% Classificação de tensão arterial pontual
-classifica_tensao(S, D, Classificacao) :-
-    (S >= 90, S =< 120, D >= 60, D =< 79) -> Classificacao = normal
-    ; (S >= 120 ; D >= 90) -> Classificacao = hipertensao
-    ; (S < 90 ; D < 60) -> Classificacao = hipotensao
-    .
-
-% Classificação da tensão arterial de um paciente
-classifica_tensao_paciente(IdConsulta, Classificacao) :-
-    consulta(IdConsulta, _, _, _, D, S, _, _, _, _),
-    ( (S >= 90, S =< 120, D >= 60, D =< 79) -> Classificacao = normal
-    ; (S >= 120 ; D >= 90) -> Classificacao = hipertensao
-    ; (S < 90 ; D < 60) -> Classificacao = hipotensao
+% --------------------------------------------
+% 5. Regras de diagnóstico da pulsacao
+% --------------------------------------------
+% Classificação pontual de uma pulsacao
+classifica_pulso(Pulsacao, Classificacao) :-
+    ( Pulsacao >= 60, Pulsacao =< 100 -> Classificacao = normal
+    ; Pulsacao < 60 -> Classificacao = bradicardia
+    ; Pulsacao > 100 -> Classificacao = taquicardia
     ).
 
-% Classificação pontual de um pulso
-classifica_pulso(Pulso, Classificacao) :-
-    ( Pulso >= 60, Pulso =< 100 -> Classificacao = normal
-    ; Pulso < 60 -> Classificacao = bradicardia
-    ; Pulso > 100 -> Classificacao = taquicardia
-    ).
-
-% Classificação do pulso de um paciente
+% Classificação da pulsacao de um paciente
 classifica_pulso_paciente(IdConsulta, Classificacao) :-
-    consulta(IdConsulta, _, _, _, _, _, Pulso, _, _, _),
-    ( Pulso >= 60, Pulso =< 100 -> Classificacao = normal
-    ; Pulso < 60 -> Classificacao = bradicardia
-    ; Pulso > 100 -> Classificacao = taquicardia
-    ).
-
-% Determinação pontual do IMC
-determinar_imc(Peso, Altura, Classificacao) :-
-    AlturaM is Altura / 100,
-    IMC is Peso / (AlturaM * AlturaM),
-    write('IMC: '), write(IMC), nl,
-    ( IMC < 18.5 -> Classificacao = magreza
-    ; (IMC >= 18.5, IMC < 24.9) -> Classificacao = normal
-    ; (IMC >= 25, IMC < 29.9) -> Classificacao = sobrepeso
-    ; IMC >= 30 -> Classificacao = obesidade
-    ).
-
-% Determinação do IMC de um paciente
-determinar_imc_paciente(Paciente, Classificacao) :-
-    consulta(_, _, Paciente, _, _, _, _, Peso, Altura, _),
-    AlturaM is Altura / 100,
-    IMC is Peso / (AlturaM * AlturaM),
-    write('IMC: '), write(IMC), nl,
-    ( IMC < 18.5 -> Classificacao = magreza
-    ; (IMC >= 18.5, IMC < 24.9) -> Classificacao = normal
-    ; (IMC >= 25, IMC < 29.9) -> Classificacao = sobrepeso
-    ; IMC >= 30 -> Classificacao = obesidade
-    ).
-
-% Avaliação pontual da temperatura corporal
-classifica_temperatura(Temp, Classificacao) :-
-    ( Temp >= 36.5, Temp =< 37.5 -> Classificacao = normal
-    ; Temp > 37.5 -> Classificacao = febre
-    ; Temp < 35 -> Classificacao = hipotermia
-    ). 
-
-% Avaliação da temperatura corporal de um paciente
-classifica_temperatura_paciente(IdConsulta, Classificacao) :-
-    consulta(IdConsulta, _, _, _, _, _, _, _, _, Temp),
-    ( Temp >= 36.5, Temp =< 37.5 -> Classificacao = normal
-    ; Temp > 37.5 -> Classificacao = febre
-    ; Temp < 35 -> Classificacao = hipotermia
+    consulta(IdConsulta, _, _, _, _, _, Pulsacao),
+    ( Pulsacao >= 60, Pulso =< 100 -> Classificacao = normal
+    ; Pulsacao < 60 -> Classificacao = bradicardia
+    ; Pulsacao > 100 -> Classificacao = taquicardia
     ).
