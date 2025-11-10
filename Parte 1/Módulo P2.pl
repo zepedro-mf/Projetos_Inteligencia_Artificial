@@ -7,7 +7,6 @@
 :- dynamic consulta/7.
 :- dynamic negativo/1.
 
-
 % --------------------------------------------
 % 0. Base de Dados
 % --------------------------------------------
@@ -23,7 +22,14 @@ consulta(c3, date(2025,10,15), p3, 34, 55, 85, 65, 75, 16, 34.5).   % hipotensã
 
 
 % --------------------------------------------
-% 1. Conhecimento negativo explícito
+% 1. Negação por falha
+% --------------------------------------------
+nao(Questao) :- Questao, !, fail.
+nao(_).
+
+
+% --------------------------------------------
+% 2. Conhecimento negativo explícito
 % --------------------------------------------
 % Pressuposto Mundo Fechado
 -paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada) :- 
@@ -56,14 +62,7 @@ consulta(c3, date(2025,10,15), p3, 34, 55, 85, 65, 75, 16, 34.5).   % hipotensã
 -consulta(cons999, (14,2,2024), 123456780, 58, 0, 0, 0).
 
 % Consulta não marcada devido a falha no sistema
--consulta(cons888, (28,1,2024), 987654321, 36, 0, 0, 0).
-
-
-% --------------------------------------------
-% 2. Negação por falha
-% --------------------------------------------
-nao(Questao) :- Questao, !, fail.
-nao(_).               
+-consulta(cons888, (28,1,2024), 987654321, 36, 0, 0, 0).             
 
 
 % --------------------------------------------
