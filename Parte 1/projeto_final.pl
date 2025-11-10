@@ -64,8 +64,7 @@ classificar_leitura(Sist, Diast, Classe) :-
     number(Sist), number(Diast),
     tensao_arterial(_, Classe, SI, SS, DI, DS),
     Sist >= SI, Sist < SS,
-    Diast >= DI, Diast < DS,
-    !.
+    Diast >= DI, Diast < DS.
 
 % -----------------------------------------
 % P3 — Análise intervalar (tratamento impreciso)
@@ -74,7 +73,6 @@ classificar_leitura(Sist, Diast, Classe) :-
 classificacao_intervalar(Syst, Diast, Classe) :-
     Syst = impreciso(Smin, Smax),
     Diast = impreciso(Dmin, Dmax),
-    !,
     ( (Smin >= 140 ; Dmin >= 90) -> Classe = hipertensao_certeza
     ; (Smax >= 140 ; Dmax >= 90) -> Classe = hipertensao_possivel
     ; Classe = indeterminado ).
@@ -82,7 +80,6 @@ classificacao_intervalar(Syst, Diast, Classe) :-
 classificacao_intervalar(Syst, Diast, Classe) :-
     Syst = impreciso(Smin, Smax),
     number(Diast),
-    !,
     ( (Smin >= 140 ; Diast >= 90) -> Classe = hipertensao_certeza
     ; (Smax >= 140 ; Diast >= 90) -> Classe = hipertensao_possivel
     ; Classe = indeterminado ).
@@ -90,7 +87,6 @@ classificacao_intervalar(Syst, Diast, Classe) :-
 classificacao_intervalar(Syst, Diast, Classe) :-
     Diast = impreciso(Dmin, Dmax),
     number(Syst),
-    !,
     ( (Syst >= 140 ; Dmin >= 90) -> Classe = hipertensao_certeza
     ; (Syst >= 140 ; Dmax >= 90) -> Classe = hipertensao_possivel
     ; Classe = indeterminado ).
