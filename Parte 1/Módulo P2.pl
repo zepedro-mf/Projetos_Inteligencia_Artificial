@@ -11,7 +11,6 @@
 % --------------------------------------------
 % 0. Base de Dados
 % --------------------------------------------
-
 % paciente(IdPaciente, Nome, DataNascimento, Sexo, Morada)
 paciente(p1, 'Ana Silva', date(1980,5,10), 'masculino', 'Rua A, 12').
 paciente(p2, 'João Costa', date(1975,2,20), 'masculino', 'Rua B, 45').
@@ -24,14 +23,51 @@ consulta(c3, date(2025,10,15), p3, 34, 55, 85, 65, 75, 16, 34.5).   % hipotensã
 
 
 % --------------------------------------------
-% 1. Negação por falha
+% 1. Conhecimento negativo explícito
+% --------------------------------------------
+% Pressuposto Mundo Fechado
+-paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada) :- 
+    nao(paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada)),
+    nao(excecao(paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada))).
+
+-consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao) :- 
+    nao(consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao)),
+    nao(excecao(consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao))).
+
+% Conhecimento perfeito negativo explícito
+-paciente(636237854, jose, (10,2,1969), masculino, cascais).
+-paciente(325544694, ricardo, (5,5,2005), masculino, faro).
+-consulta(cons356, (25,12,2023), 237987543, 23, 80, 130, 70).
+
+
+% O paciente José faleceu e portanto deixou de ser paciente na clínica
+-paciente(636237854, jose, (10,2,1969), masculino, cascais).
+
+% O paciente Ricardo não gostou da clínica, então não se tornou paciente
+-paciente(325544694, ricardo, (5,5,2005), masculino, faro).
+
+% A clínica não esteve aberta no dia 25/12, logo não existem consultas nesse dia
+-consulta(cons356, (25,12,2023), 237987543, 23, 80, 130, 70).
+
+% Paciente que foi transferido para outra clínica
+-paciente(789123456, miguel, (15,8,1978), masculino, coimbra).
+
+% Consulta cancelada por motivos de saúde do Médico
+-consulta(cons999, (14,2,2024), 123456780, 58, 0, 0, 0).
+
+% Consulta não marcada devido a falha no sistema
+-consulta(cons888, (28,1,2024), 987654321, 36, 0, 0, 0).
+
+
+% --------------------------------------------
+% 2. Negação por falha
 % --------------------------------------------
 nao(Questao) :- Questao, !, fail.
 nao(_).               
 
 
 % --------------------------------------------
-% 2. Sistemas de inferência
+% 3. Sistemas de inferência
 % --------------------------------------------
 % Extensao do meta-predicado si: Questao, Resposta -> {V,F,D}
 si( Questao, verdadeiro):- Questao.
@@ -96,24 +132,6 @@ siD( Q1, Q2, desconhecido) :-
 siD( Q1, Q2, desconhecido) :-
 	si( Q1, desconhecido),
 	si( Q2, desconhecido).
-
-
-% --------------------------------------------
-% 3. Conhecimento negativo explícito
-% --------------------------------------------
-% Pressuposto Mundo Fechado
--paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada) :- 
-    nao(paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada)),
-    nao(excecao(paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada))).
-
--consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao) :- 
-    nao(consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao)),
-    nao(excecao(consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao))).
-
-% Conhecimento perfeito negativo explícito
--paciente(636237854, jose, (10,2,1969), masculino, cascais).
--paciente(325544694, ricardo, (5,5,2005), masculino, faro).
--consulta(cons356, (25,12,2023), 237987543, 23, 80, 130, 70).
 
 
 % --------------------------------------------
