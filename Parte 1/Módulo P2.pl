@@ -24,22 +24,100 @@ consulta(c3, date(2025,10,15), p3, 34, 55, 85, 65, 75, 16, 34.5).   % hipotensã
 
 
 % --------------------------------------------
-% 1. Negação por falha (negation as failure)
+% 1. Negação por falha
 % --------------------------------------------
 nao(Questao) :- Questao, !, fail.
-nao(_).                
+nao(_).               
 
 
 % --------------------------------------------
-% 2. Sistema de inferência trivalorado (si/2)
+% 2. Sistemas de inferência
 % --------------------------------------------
-si(Questao, verdadeiro) :- Questao, !.
-si(Questao, falso) :- negativo(Questao), !.
-si(_, desconhecido).
+% Extensao do meta-predicado si: Questao, Resposta -> {V,F,D}
+si( Questao, verdadeiro):- Questao.
+si( Questao, falso):- -Questao.
+si( Questao, desconhecido) :- nao(Questao), nao(-Questao).
+
+% Extensao do meta-predicado siC: Questao1, Questao2, Resposta -> {V,F,D}
+siC( Q1, Q2, verdadeiro) :- 
+	si(Q1, verdadeiro), 
+	si(Q2, verdadeiro).
+siC( Q1, Q2, falso) :- 
+	si(Q1, verdadeiro), 
+	si(Q2, falso).
+siC( Q1, Q2, desconhecido) :- 
+	si( Q1, verdadeiro), 
+	si( Q2, desconhecido).
+siC( Q1, Q2, falso) :- 
+	si( Q1, falso), 
+	si( Q2, verdadeiro).
+siC( Q1, Q2, falso) :-
+	si( Q1, falso),
+	si( Q2, falso).
+siC( Q1, Q2, falso) :-
+	si( Q1, falso),
+	si( Q2, desconhecido).
+siC( Q1, Q2, desconhecido) :-
+	si( Q1, desconhecido),
+	si( Q2, verdadeiro).
+siC( Q1, Q2, falso) :-
+	si( Q1, desconhecido),
+	si( Q2, falso).
+siC( Q1, Q2, desconhecido) :-
+	si( Q1, desconhecido),
+	si( Q2, desconhecido).
+
+
+% Extensao do meta-predicado siD: Questao1, Questao2, Resposta -> {V,F,D}
+siD( Q1, Q2, verdadeiro) :-
+	si( Q1, verdadeiro),
+	si( Q2, verdadeiro).
+siD( Q1, Q2, verdadeiro) :-
+	si( Q1, verdadeiro),
+	si( Q2, falso).
+siD( Q1, Q2, verdadeiro) :-
+	si( Q1, verdadeiro),
+    si( Q2, desconhecido).
+siD( Q1, Q2, verdadeiro) :-
+	si( Q1, falso),
+	si( Q2, verdadeiro).
+siD( Q1, Q2, falso) :-
+	si( Q1, falso),
+	si( Q2, falso).
+siD( Q1, Q2, desconhecido) :-
+	si( Q1, falso),
+	si( Q2, desconhecido).
+siD( Q1, Q2, verdadeiro) :-
+	si( Q1, desconhecido),
+	si( Q2, verdadeiro).
+siD( Q1, Q2, desconhecido) :-
+	si( Q1, desconhecido),
+	si( Q2, falso).
+siD( Q1, Q2, desconhecido) :-
+	si( Q1, desconhecido),
+	si( Q2, desconhecido).
 
 
 % --------------------------------------------
-% 3. Regras de diagnóstico
+% 3. Conhecimento negativo explícito
+% --------------------------------------------
+% Pressuposto Mundo Fechado
+-paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada) :- 
+    nao(paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada)),
+    nao(excecao(paciente(IdPac,Nome,(Dia,Mes,Ano),Sexo,Morada))).
+
+-consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao) :- 
+    nao(consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao)),
+    nao(excecao(consulta(IdConsulta,(Dia,Mes,Ano),IdPac,Idade,Diastolica,Sistolica,Pulsacao))).
+
+% Conhecimento perfeito negativo explícito
+-paciente(636237854, jose, (10,2,1969), masculino, cascais).
+-paciente(325544694, ricardo, (5,5,2005), masculino, faro).
+-consulta(cons356, (25,12,2023), 237987543, 23, 80, 130, 70).
+
+
+% --------------------------------------------
+% 4. Regras de diagnóstico
 % --------------------------------------------
 
 % Classificação de tensão arterial pontual
