@@ -133,7 +133,6 @@ siD( Q1, Q2, desconhecido) :-
 % --------------------------------------------
 % 4. Regras de diagnóstico da tensão arterial
 % --------------------------------------------
-
 % Classificação pontual da tensão arterial
 classificar_ta(Sistolica, Diastolica, Res) :-
     tensao_arterial(_, Classificacao, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup),
@@ -152,35 +151,78 @@ classificar_ta_paciente(IdPac, Res) :-
     Diastolica =< DiastolicaSup,
     Res = Classificacao.
 
-% Diagnóstico específico de hipertensao
+% Diagnóstico específico de hipertensao grau 1, 2 e 3
 pacientes_hipertensos(Pacientes) :-
     findall(Nome, 
             (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
              paciente(IdPac,Nome,_,_,_),
-             (Diastolica > 90; Sistolica > 140)), 
+             (classificar_ta(Sistolica, Diastolica, hipertensao_grau1);
+              classificar_ta(Sistolica, Diastolica, hipertensao_grau2);
+              classificar_ta(Sistolica, Diastolica, hipertensao_grau3))), 
             Pacientes).
 
-% Verificação de condição específica
+% Diagnóstico específico de tensão arterial normal e otima
+pacientes_normais(Pacientes) :-
+    findall(Nome, 
+            (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+             paciente(IdPac,Nome,_,_,_),
+             (classificar_ta(Sistolica, Diastolica, otima);
+              classificar_ta(Sistolica, Diastolica, normal))), 
+            Pacientes).
+
+% Diagnóstico específico de tensão arterial normal alta
+pacientes_normal_alta(Pacientes) :-
+    findall(Nome, 
+            (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+             paciente(IdPac,Nome,_,_,_),
+             classificar_ta(Sistolica, Diastolica, normal_alta)), 
+            Pacientes).
+
+% Diagnóstico específico de hipotensao
+pacientes_hipotensos(Pacientes) :-
+    findall(Nome, 
+            (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+             paciente(IdPac,Nome,_,_,_),
+             classificar_ta(Sistolica, Diastolica, hipotensao)), 
+            Pacientes).
+
+% Verificação de condicoes normais
+tem_ta_normal_ou_otima(IdPac) :-
+    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+    (classificar_ta(Sistolica, Diastolica, otima);
+     classificar_ta(Sistolica, Diastolica, normal)).
 tem_ta_otima(IdPac) :-
     consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
     classificar_ta(Sistolica, Diastolica, otima).
 
+tem_ta_normal(IdPac) :-
+    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+    classificar_ta(Sistolica, Diastolica, normal).
 
+tem_ta_normal_alta(IdPac) :-
+    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+    classificar_ta(Sistolica, Diastolica, normal_alta).
 
-% --------------------------------------------
-% 5. Regras de diagnóstico da pulsacao
-% --------------------------------------------
-% Classificação pontual de uma pulsacao
-classifica_pulso(Pulsacao, Classificacao) :-
-    ( Pulsacao >= 60, Pulsacao =< 100 -> Classificacao = normal
-    ; Pulsacao < 60 -> Classificacao = bradicardia
-    ; Pulsacao > 100 -> Classificacao = taquicardia
-    ).
+% Verificacao de hipertensao
+tem_hipertensao(IdPac) :-
+    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+    (classificar_ta(Sistolica, Diastolica, hipertensao_grau1);
+     classificar_ta(Sistolica, Diastolica, hipertensao_grau2);
+     classificar_ta(Sistolica, Diastolica, hipertensao_grau3)).
 
-% Classificação da pulsacao de um paciente
-classifica_pulso_paciente(IdConsulta, Classificacao) :-
-    consulta(IdConsulta, _, _, _, _, _, Pulsacao),
-    ( Pulsacao >= 60, Pulso =< 100 -> Classificacao = normal
-    ; Pulsacao < 60 -> Classificacao = bradicardia
-    ; Pulsacao > 100 -> Classificacao = taquicardia
-    ).
+tem_hipertensao_grau1(IdPac) :-
+    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+    classificar_ta(Sistolica, Diastolica, hipertensao_grau1).
+
+tem_hipertensao_grau2(IdPac) :-
+    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+    classificar_ta(Sistolica, Diastolica, hipertensao_grau2).
+
+tem_hipertensao_grau3(IdPac) :-
+    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+    classificar_ta(Sistolica, Diastolica, hipertensao_grau3).
+
+% Verificacao de hipotensao
+tem_hipotensao(IdPac) :-
+    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
+    classificar_ta(Sistolica, Diastolica, hipotensao).
