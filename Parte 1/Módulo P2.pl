@@ -81,7 +81,7 @@ siC( Q1, Q2, desconhecido) :-
 	si( Q1, verdadeiro), 
 	si( Q2, desconhecido).
 siC( Q1, Q2, falso) :- 
-	si( Q1, falso), 
+	si( Q1, falso),
 	si( Q2, verdadeiro).
 siC( Q1, Q2, falso) :-
 	si( Q1, falso),
@@ -162,7 +162,7 @@ pacientes_hipertensos(Pacientes) :-
             Pacientes).
 
 % Diagnóstico específico de tensão arterial normal e otima
-pacientes_normais(Pacientes) :-
+pacientes_normal(Pacientes) :-
     findall(Nome, 
             (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
              paciente(IdPac,Nome,_,_,_),
