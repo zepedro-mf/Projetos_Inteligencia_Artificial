@@ -12,7 +12,7 @@
 :- style_check(-singleton).
 
 % =========================================================
-% 0. Directives and Operators 
+% 0. CONFIGURAÇÃO INICIAL E OPERADORES
 % =========================================================
 
 :- dynamic (paciente/5). 
