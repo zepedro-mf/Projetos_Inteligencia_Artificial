@@ -1,0 +1,89 @@
+% ==================================================
+% TESTES SISTEMA DE INFERÊNCIA
+% ==================================================
+si(paciente(p001,_,_,_,_), R1).                    % verdadeiro
+si(paciente(nao_existe,_,_,_,_), R2).              % falso  
+si(paciente(num_desconhecido,_,_,_,_), R3).        % desconhecido (interdito)
+si(consulta(c001,_,_,_,_,_,_), R4).                % verdadeiro
+si(consulta(nao_existe,_,_,_,_,_,_), R5).          % falso
+
+siC(paciente(p001,_,_,_,_), consulta(c001,_,_,_,_,_,_), R6).  % verdadeiro
+siD(paciente(nao_existe,_,_,_,_), paciente(p001,_,_,_,_), R7). % verdadeiro
+siC(paciente(nao_existe,_,_,_,_), consulta(nao_existe,_,_,_,_,_,_), R8). % falso
+
+% ==================================================
+% TESTES CONHECIMENTO PERFEITO
+% ==================================================
+paciente(p001, Nome, Data, Sexo, Morada).          % Ana Silva
+consulta(c001, Data, Pac, Idade, Dia, Sis, Pulso). % p001, 82/125
+tensao(ta02, Class, SInf, SSup, DInf, DSup).       % otima: 90-120/60-80
+
+% ==================================================
+% TESTES CWA (PRESSUPOSTO MUNDO FECHADO)
+% ==================================================
+-paciente(636237854, _, _, _, _).                  % verdadeiro (conhecimento negativo)
+-paciente(999999999, _, _, _, _).                  % verdadeiro (por CWA)
+-consulta(cons999, _, _, _, _, _, _).              % verdadeiro (conhecimento negativo)
+
+% ==================================================
+% TESTES CONHECIMENTO IMPERFEITO
+% ==================================================
+consulta(c_incerto_001, _, _, _, _, _, Pulso).     % desconhecido
+excecao(consulta(c_incerto_001, _, _, _, _, _, _)). % verdadeiro
+interdito(num_desconhecido).                       % verdadeiro
+
+% ==================================================
+% TESTES CLASSIFICAÇÃO TENSÃO ARTERIAL
+% ==================================================
+classificar_ta(125, 82, Class1).                   % normal
+classificar_ta(148, 92, Class2).                   % hipertensao_grau1
+classificar_ta(168, 105, Class3).                  % hipertensao_grau2
+classificar_ta(88, 58, Class4).                    % hipotensao
+classificar_ta(118, 76, Class5).                   % otima
+
+classificar_tensao(p001, Classe1).                 % normal
+classificar_tensao(p004, Classe2).                 % hipertensao_grau1
+classificar_tensao(p005, Classe3).                 % otima
+
+% ==================================================
+% TESTES HIPERTENSÃO E RISCO
+% ==================================================
+tem_hipertensao(p004).                             % true
+tem_hipertensao(p006).                             % true  
+tem_hipertensao(p001).                             % false
+
+avaliar_risco(p001, Risco1).                       % baixo
+avaliar_risco(p002, Risco2).                       % moderado
+avaliar_risco(p004, Risco3).                       % alto
+avaliar_risco(p005, Risco4).                       % baixo
+
+% ==================================================
+% TESTES CONHECIMENTO NEGATIVO
+% ==================================================
+-tensao(_,_,100,_,110,_).                          % true (SistInf < DiastInf)
+-tensao(_,_,120,_,80,_).                           % false
+
+% ==================================================
+% TESTES RELATÓRIOS E LISTAGENS
+% ==================================================
+listar_pacientes.
+relatorio_paciente_detalhado(p001).
+listar_consultas(p001).
+
+% ==================================================
+% TESTES EVOLUÇÃO/INVOLUÇÃO
+% ==================================================
+evolucao(paciente(p010, 'Teste', date(2000,1,1), 'masculino', 'Teste')).
+involucao(paciente(p010, 'Teste', date(2000,1,1), 'masculino', 'Teste')).
+
+% ==================================================
+% TESTES ATUALIZAÇÃO
+% ==================================================
+atualizar_nome_paciente(p001, 'Ana Silva Updated').
+atualizar_morada_paciente(p001, 'Nova Morada').
+
+% ==================================================
+% TESTES INVARIANTES
+% ==================================================
+evolucao(paciente(p001, _, _, _, _)). % deve falhar (ID duplicado)
+evolucao(consulta(c999, (1,1,2024), p001, 40, 20, 350, 50)). %false
