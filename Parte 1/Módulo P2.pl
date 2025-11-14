@@ -14,6 +14,7 @@
 paciente(1002, 'Ana Silva', date(1980,5,10), 'masculino', 'Rua A, 12').
 paciente(1005, 'João Costa', date(1975,2,20), 'masculino', 'Rua B, 45').
 paciente(1009, 'Maria Dias', date(1990,7,1), 'feminino', 'Rua C, 9').
+paciente(1010, 'Pedro Santos', date(1996,3,15), 'masculino', 'Rua D, 7').
 
 % consulta(IdConsulta, Data, IdPaciente, Idade, Diastolica, Sistolica, Pulsacao)
 consulta(cons_2024_002, (9,1,2024), 1002, 38, 82, 125, 72). % TA Normal
@@ -25,6 +26,9 @@ consulta(cons_2024_007, (16,1,2024), 1007, 35, 84, 128, 70). % TA Normal
 consulta(cons_2024_008, (17,1,2024), 1008, 48, 95, 152, 78). % Hipertensão Grau 1
 consulta(cons_2024_009, (18,1,2024), 1009, 55, 79, 119, 66). % TA Ótima
 consulta(cons_2024_010, (19,1,2024), 1010, 28, 58, 88, 62). % Hipotensão
+consulta(cons_2024_011, (20,1,2024), 1009, 28, 58, 88, 62).
+consulta(cons_2024_012, (19,2,2024), 1009, 28, 58, 88, 62).
+consulta(cons_2024_013, (19,1,2023), 1009, 28, 58, 88, 62).
 
 % tensao_arterial(IdTA, Classificacao, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup)
 tensao_arterial(ta01, hipotensao, 0, 90, 0, 60).
@@ -131,9 +135,8 @@ siD( Q1, Q2, desconhecido) :-
 
 
 % --------------------------------------------
-% 4. Regras de diagnóstico da tensão arterial
-% --------------------------------------------
 % Classificação pontual da tensão arterial
+% --------------------------------------------
 classificar_ta(Sistolica, Diastolica, Res) :-
     tensao_arterial(_, Classificacao, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup),
     Sistolica >= SistolicaInf,
@@ -142,16 +145,35 @@ classificar_ta(Sistolica, Diastolica, Res) :-
     Diastolica =< DiastolicaSup,
     Res = Classificacao.
 
-% Classificação da tensão arterial de um paciente
-classificar_ta_paciente(IdPac, Res) :-
-    consulta(_,(_,_,_),IdPac,_, Diastolica, Sistolica, _),
-    Sistolica >= SistolicaInf,
-    Sistolica =< SistolicaSup,
-    Diastolica >= DiastolicaInf,
-    Diastolica =< DiastolicaSup,
-    Res = Classificacao.
 
-% Diagnóstico específico de hipertensao grau 1, 2 e 3
+% ----------------------------------------------------
+% Classificação da tensão arterial de um paciente
+% ----------------------------------------------------
+classificar_ta_paciente_aux(IdPac, ConsultasClassificadas) :-
+    findall((Data, Classificacao),
+            (consulta(_, Data, IdPac, _, Diastolica, Sistolica, _),
+             classificar_ta(Sistolica, Diastolica, Classificacao)),
+            Consultas),
+    ordenar_consultas_por_data(Consultas, ConsultasClassificadas).
+
+classificar_ta_paciente(IdPac) :-
+    classificar_ta_paciente_aux(IdPac, ConsultasClassificadas),
+    (ConsultasClassificadas = [] -> 
+        format('Paciente ~w: Sem consultas registadas~n', [IdPac])
+    ;
+        paciente(IdPac, Nome, _, _, _),
+        format('Classificação TA de ~w (ID: ~w):~n', [Nome, IdPac]),
+        listar_classificacoes_aux(ConsultasClassificadas)
+    ).
+
+listar_classificacoes_aux([]).
+listar_classificacoes_aux([(Data, Classificacao)|T]) :-
+    format('  Data: ~w | Classificação: ~w~n', [Data, Classificacao]),
+    listar_classificacoes_aux(T).
+
+% -----------------------------------------------
+% Diagnósticos específicos de tensão arterial
+% -----------------------------------------------
 pacientes_hipertensos(Pacientes) :-
     findall(Nome, 
             (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
@@ -161,7 +183,6 @@ pacientes_hipertensos(Pacientes) :-
               classificar_ta(Sistolica, Diastolica, hipertensao_grau3))), 
             Pacientes).
 
-% Diagnóstico específico de tensão arterial normal e otima
 pacientes_normal(Pacientes) :-
     findall(Nome, 
             (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
@@ -170,7 +191,6 @@ pacientes_normal(Pacientes) :-
               classificar_ta(Sistolica, Diastolica, normal))), 
             Pacientes).
 
-% Diagnóstico específico de tensão arterial normal alta
 pacientes_normal_alta(Pacientes) :-
     findall(Nome, 
             (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
@@ -178,7 +198,6 @@ pacientes_normal_alta(Pacientes) :-
              classificar_ta(Sistolica, Diastolica, normal_alta)), 
             Pacientes).
 
-% Diagnóstico específico de hipotensao
 pacientes_hipotensos(Pacientes) :-
     findall(Nome, 
             (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
@@ -186,43 +205,117 @@ pacientes_hipotensos(Pacientes) :-
              classificar_ta(Sistolica, Diastolica, hipotensao)), 
             Pacientes).
 
-% Verificação de condicoes normais
 tem_ta_normal_ou_otima(IdPac) :-
     consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
     (classificar_ta(Sistolica, Diastolica, otima);
      classificar_ta(Sistolica, Diastolica, normal)).
-tem_ta_otima(IdPac) :-
-    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
-    classificar_ta(Sistolica, Diastolica, otima).
+ 
+% --------------------------------------------
+% Listar consultas do paciente por ordem cronológica
+% --------------------------------------------
 
-tem_ta_normal(IdPac) :-
-    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
-    classificar_ta(Sistolica, Diastolica, normal).
+% Predicado principal: listar consultas ordenadas por data (mais recente primeiro)
+listar_consultas(Pac) :-
+    findall((Data, Diastolica, Sistolica, Pulso), 
+            consulta(_, Data, Pac, _, Diastolica, Sistolica, Pulso), 
+            Consultas),
+    (Consultas = [] -> 
+        format('  Sem consultas registadas~n', [])
+    ;
+        ordenar_consultas_por_data(Consultas, ConsultasOrdenadas),
+        format('Consultas do paciente ~w (do mais recente):~n', [Pac]),
+        listar_consultas_aux(ConsultasOrdenadas)
+    ).
 
-tem_ta_normal_alta(IdPac) :-
-    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
-    classificar_ta(Sistolica, Diastolica, normal_alta).
+% Ordenar lista de consultas por data (mais recente primeiro)
+ordenar_consultas_por_data(Consultas, Ordenadas) :-
+    ordenar_consultas_aux(Consultas, [], Ordenadas).
 
-% Verificacao de hipertensao
-tem_hipertensao(IdPac) :-
-    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
-    (classificar_ta(Sistolica, Diastolica, hipertensao_grau1);
-     classificar_ta(Sistolica, Diastolica, hipertensao_grau2);
-     classificar_ta(Sistolica, Diastolica, hipertensao_grau3)).
+ordenar_consultas_aux([], Ordenada, Ordenada).
+ordenar_consultas_aux([H|T], Accum, Ordenada) :-
+    inserir_por_data(H, Accum, NovoAccum),
+    ordenar_consultas_aux(T, NovoAccum, Ordenada).
 
-tem_hipertensao_grau1(IdPac) :-
-    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
-    classificar_ta(Sistolica, Diastolica, hipertensao_grau1).
+% Inserir uma consulta na posição correta (ordenado por data)
+inserir_por_data(Consulta, [], [Consulta]).
+inserir_por_data(Consulta, [H|T], [Consulta, H|T]) :-
+    consulta_mais_recente(Consulta, H).
+inserir_por_data(Consulta, [H|T], [H|T1]) :-
+    \+ consulta_mais_recente(Consulta, H),
+    inserir_por_data(Consulta, T, T1).
 
-tem_hipertensao_grau2(IdPac) :-
-    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
-    classificar_ta(Sistolica, Diastolica, hipertensao_grau2).
+% Verificar se a Consulta1 é mais recente que Consulta2
+consulta_mais_recente((Data1, _, _, _), (Data2, _, _, _)) :-
+    data_mais_recente(Data1, Data2).
 
-tem_hipertensao_grau3(IdPac) :-
-    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
-    classificar_ta(Sistolica, Diastolica, hipertensao_grau3).
+% Comparar duas datas - retorna true se Data1 é mais recente que Data2
+data_mais_recente((D1, M1, A1), (D2, M2, A2)) :-
+    (A1 > A2 -> true;
+     A1 =:= A2, M1 > M2 -> true;
+     A1 =:= A2, M1 =:= M2, D1 > D2).
 
-% Verificacao de hipotensao
-tem_hipotensao(IdPac) :-
-    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
-    classificar_ta(Sistolica, Diastolica, hipotensao).
+% Auxiliar de listagem (mantém o formato original)
+listar_consultas_aux([]).
+listar_consultas_aux([(Data, Dia, Sis, Pulso)|T]) :-
+    format('  Data: ~w | TA Diastólica: ~w | TA Sistólica: ~w | Pulsação: ~w~n', [Data, Dia, Sis, Pulso]),
+    listar_consultas_aux(T).
+
+listar_pacientes :-
+    findall((Id,Nome,DataNasc,Sexo,Morada), paciente(Id,Nome,DataNasc,Sexo,Morada), L),
+    ( L = [] ->
+        format('Sem pacientes registados~n', [])
+    ;
+        format('--- Lista de Pacientes ---~n', []),
+        listar_pacientes_aux(L)
+    ).
+
+listar_pacientes_aux([]).
+listar_pacientes_aux([(Id,Nome,DataNasc,Sexo,Morada)|T]) :-
+    format('ID: ~w | Nome: ~w | Data Nasc: ~w | Sexo: ~w | Morada: ~w~n', [Id,Nome,DataNasc,Sexo,Morada]),
+    listar_pacientes_aux(T).
+
+% --------------------------------------------
+% Versão com classificação da TA
+% --------------------------------------------
+
+% Listar consultas com classificação da TA
+listar_consultas_com_classificacao(Pac) :-
+    findall((Data, Diastolica, Sistolica, Pulso), 
+            consulta(_, Data, Pac, _, Diastolica, Sistolica, Pulso), 
+            Consultas),
+    (Consultas = [] -> 
+        format('  Sem consultas registadas~n', [])
+    ;
+        ordenar_consultas_por_data(Consultas, ConsultasOrdenadas),
+        format('Consultas do paciente ~w: ~n', [Pac]),
+        listar_consultas_com_class_aux(ConsultasOrdenadas)
+    ).
+
+% Auxiliar de listagem com classificação
+listar_consultas_com_class_aux([]).
+listar_consultas_com_class_aux([(Data, Dia, Sis, Pulso)|T]) :-
+    classificar_ta(Sis, Dia, Classificacao),
+    format('  Data: ~w | TA: ~w/~w | Pulsação: ~w | Classificação: ~w~n', 
+           [Data, Sis, Dia, Pulso, Classificacao]),
+    listar_consultas_com_class_aux(T).
+
+% --------------------------------------------
+% Funções auxiliares úteis
+% --------------------------------------------
+
+% Última consulta de um paciente
+ultima_consulta_paciente(Pac, Data, Diastolica, Sistolica, Pulso) :-
+    findall((Data, Diastolica, Sistolica, Pulso), 
+            consulta(_, Data, Pac, _, Diastolica, Sistolica, Pulso), 
+            Consultas),
+    Consultas \= [],
+    ordenar_consultas_por_data(Consultas, [(Data, Diastolica, Sistolica, Pulso)|_]).
+
+% Primeira consulta de um paciente
+primeira_consulta_paciente(Pac, Data, Diastolica, Sistolica, Pulso) :-
+    findall((Data, Diastolica, Sistolica, Pulso), 
+            consulta(_, Data, Pac, _, Diastolica, Sistolica, Pulso), 
+            Consultas),
+    Consultas \= [],
+    ordenar_consultas_por_data(Consultas, ConsultasOrdenadas),
+    last(ConsultasOrdenadas, (Data, Diastolica, Sistolica, Pulso)).
