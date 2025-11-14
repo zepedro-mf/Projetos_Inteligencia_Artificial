@@ -365,7 +365,7 @@ testar([Inv|R]) :-
     testar(R).
 
 % =========================================================
-% 12. ATUALIZAÇÃO DE PACIENTES
+% 10. ATUALIZAÇÃO DE PACIENTES
 % =========================================================
 
 atualizar_paciente(Id, NovoNome, NovaData, NovoSexo, NovaRua) :-
