@@ -131,20 +131,20 @@ consulta(c009, (19,1,2024), p009, 28, 58, 88, 62). % Hipotensão
 consulta(c001, (20,3,2024), p003, 38, 82, 125, 72). % TA Normal
 
 % tensao(Id, Class, SistInf, SistSup, DiastInf, DiastSup)
-tensao(ta01, hipotensao, 0, 90, 0, 60).
-tensao(ta02, otima, 90, 120, 60, 80).
-tensao(ta03, normal, 120, 130, 80, 85).
-tensao(ta04, normal_alta, 130, 140, 85, 90).
-tensao(ta05, hipertensao_grau1, 140, 160, 90, 100).
-tensao(ta06, hipertensao_grau2, 160, 180, 100, 110).
-tensao(ta07, hipertensao_grau3, 180, 300, 110, 300).
+tensao_arterial(ta01, hipotensao, 0, 90, 0, 60).
+tensao_arterial(ta02, otima, 90, 120, 60, 80).
+tensao_arterial(ta03, normal, 120, 130, 80, 85).
+tensao_arterial(ta04, normal_alta, 130, 140, 85, 90).
+tensao_arterial(ta05, hipertensao_grau1, 140, 160, 90, 100).
+tensao_arterial(ta06, hipertensao_grau2, 160, 180, 100, 110).
+tensao_arterial(ta07, hipertensao_grau3, 180, 300, 110, 300).
 
 % =========================================================
 % 5. CONHECIMENTO NEGATIVO
 % =========================================================
 
 % Negação para consistência: tensão sistólica deve ser sempre superior à diastólica
--tensao(_,_,SistInf,_,DiastInf,_) :- SistInf < DiastInf.
+-tensao_arterial(_,_,SistInf,_,DiastInf,_) :- SistInf < DiastInf.
 
 % =========================================================
 % 6. CONHECIMENTO IMPERFEITO
@@ -205,8 +205,11 @@ classificar_ta_paciente(IdPac) :-
     (ConsultasClassificadas = [] -> 
         format('Paciente ~w: Sem consultas registadas~n', [IdPac])
     ;
-        paciente(IdPac, Nome, _, _, _),
-        format('Classificação TA de ~w (ID: ~w):~n', [Nome, IdPac]),
+        (paciente(IdPac, Nome, _, _, _) -> 
+            format('Classificação TA de ~w (ID: ~w):~n', [Nome, IdPac])
+        ;
+            format('Classificação TA do paciente ID ~w:~n', [IdPac])
+        ),
         listar_classificacoes_aux(ConsultasClassificadas)
     ).
 
@@ -217,15 +220,21 @@ listar_classificacoes_aux([(Data, Classificacao)|T]) :-
 
 % Avaliação de Risco (Adaptado de TEst-2 para as novas Classes) 
 avaliar_risco(Pac, baixo) :-
-    (classificar_tensao(Pac, otima); classificar_tensao(Pac, normal)), !.
+    (classificar_ta_paciente(Pac, otima); classificar_ta_paciente(Pac, normal)), !.
 
 avaliar_risco(Pac, moderado) :-
-    classificar_tensao(Pac, normal_alta), !.
+    classificar_ta_paciente(Pac, normal_alta), !.
 
 avaliar_risco(Pac, alto) :-
     tem_hipertensao(Pac), !.
 
 avaliar_risco(_, desconhecido).
+
+tem_hipertensao(IdPac) :-
+    classificar_tensao(IdPac, Classificacao),
+    (Classificacao = hipertensao_grau1;
+     Classificacao = hipertensao_grau2;
+     Classificacao = hipertensao_grau3).
 
 pacientes_hipertensos(Pacientes) :-
     findall(Nome, 
@@ -270,7 +279,7 @@ tem_ta_normal_ou_otima(IdPac) :-
 % Relatório detalhado
 relatorio_paciente_detalhado(Pac) :-
     paciente(Pac, Nome, DataNasc, Sexo, Morada),
-    (classificar_tensao(Pac, Classe) -> true ; Classe = 'indeterminado'),
+    (classificar_ta_paciente(Pac, Classe) -> true ; Classe = 'indeterminado'),
     (avaliar_risco(Pac, Risco) -> true ; Risco = 'indeterminado'),
     
     format('=== RELATORIO MEDICO DETALHADO ===~n', []),
@@ -326,8 +335,9 @@ data_mais_recente((D1, M1, A1), (D2, M2, A2)) :-
 
 listar_consultas_aux([]).
 listar_consultas_aux([(Data, Dia, Sis, Pulso)|T]) :-
+    classificar_ta(Sis, Dia, Classificacao),  % CALCULAR classificação
     format('  Data: ~w | TA Diastólica: ~w | TA Sistólica: ~w | Pulsação: ~w | Classificação: ~w~n', 
-           [Data, Sis, Dia, Pulso, Classificacao]),
+           [Data, Dia, Sis, Pulso, Classificacao]),
     listar_consultas_aux(T).
 
 listar_pacientes :-
