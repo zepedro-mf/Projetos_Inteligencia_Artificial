@@ -4,11 +4,24 @@
 % Versão: IDs Alfanuméricos (p001, c001, etc.)
 % =========================================================
 
+% =========================================================
+% SUPRESSÃO DE WARNINGS (adicionar no início do ficheiro)
+% =========================================================
+
+:- discontiguous paciente/5.
+:- discontiguous consulta/7.
+:- discontiguous tensao/6.
+:- discontiguous excecao/1.
+:- discontiguous (-)/1.
+
+% Desativar warnings de variáveis singleton
+:- style_check(-singleton).
+
 % --------------------------------------------
 % 0. Directives and Operators (Atualizados)
 % --------------------------------------------
 
-:- dynamic (paciente/5).  % Atualizado de /4 para /5 (inclui Morada)
+:- dynamic (paciente/5). 
 :- dynamic (consulta/7).
 :- dynamic (tensao/6).
 
@@ -29,7 +42,13 @@
 nao(Questao) :- Questao, !, fail.
 nao(_).
 
+% Verificação de interditos - trata como desconhecido
+e_interdito(paciente(Id,_,_,_,_)) :- interdito(Id).
+e_interdito(consulta(Id,_,_,_,_,_,_)) :- interdito(Id).
+e_interdito(tensao(Id,_,_,_,_,_)) :- interdito(Id).
+
 % Extensao do meta-predicado si: Questao, Resposta -> {V,F,D}
+si( Questao, desconhecido) :- e_interdito(Questao), !.
 si( Questao, verdadeiro):- Questao.
 si( Questao, falso):- -Questao.
 si( Questao, desconhecido) :- nao(Questao), nao(-Questao).
@@ -91,11 +110,11 @@ comprimento([_|T], N) :-
 -consulta(cons999, (14,2,2024), _, _, _, _, _).
 
 % =========================================================
-%             4. CONHECIMENTO PERFEITO (Factos)
+%             4. CONHECIMENTO PERFEITO
 % =========================================================
 
-% Factos de paciente/5 (IDs atualizados: 1002 -> p001, 1005 -> p002, etc.)
-paciente(p001, 'Ana Silva', date(1980,5,10), 'masculino', 'Rua A, 12').
+
+paciente(p001, 'Ana Silva', date(1980,5,10), 'feminino', 'Rua A, 12').
 paciente(p002, 'João Costa', date(1975,2,20), 'masculino', 'Rua B, 45').
 paciente(p003, 'Maria Dias', date(1990,7,1), 'feminino', 'Rua C, 9').
 paciente(p004, 'Carlos Lima', date(1966,11,15), 'masculino', 'Av. D, 10').
@@ -105,19 +124,18 @@ paciente(p007, 'Filipa Henriques', date(1989,4,12), 'feminino', 'Pr. G, 15').
 paciente(p008, 'Gonçalo Isidro', date(1977,1,7), 'masculino', 'Beco H, 3').
 paciente(p009, 'Inês Janeiro', date(1996,10,25), 'feminino', 'Estrada I, 7').
 
-% Factos de consulta/7 (IDs de Consulta e Paciente atualizados)
 % consulta(IdConsulta, Data, IdPaciente, Idade, Diastolica, Sistolica, Pulsacao)
 consulta(c001, (9,1,2024), p001, 38, 82, 125, 72). % TA Normal
 consulta(c002, (10,1,2024), p004, 58, 92, 148, 76). % Hipertensão Grau 1
 consulta(c003, (11,1,2024), p005, 31, 76, 118, 65). % TA Ótima
-consulta(c004_antigo, (12,1,2024), p002, 51, 88, 138, 74). % TA Normal Alta
-consulta(c005_antigo, (15,1,2024), p006, 65, 105, 168, 82). % Hipertensão Grau 2
+consulta(c004, (12,1,2024), p002, 51, 88, 138, 74). % TA Normal Alta
+consulta(c005, (15,1,2024), p006, 65, 105, 168, 82). % Hipertensão Grau 2
 consulta(c006, (16,1,2024), p007, 35, 84, 128, 70). % TA Normal
 consulta(c007, (17,1,2024), p008, 48, 95, 152, 78). % Hipertensão Grau 1
 consulta(c008, (18,1,2024), p003, 55, 79, 119, 66). % TA Ótima
 consulta(c009, (19,1,2024), p009, 28, 58, 88, 62). % Hipotensão
 
-% Factos de tensao/6 (Classificações e Limites - Sem alteração de IDs)
+
 % tensao(Id, Class, SistInf, SistSup, DiastInf, DiastSup)
 tensao(ta01, hipotensao, 0, 90, 0, 60).
 tensao(ta02, otima, 90, 120, 60, 80).
@@ -143,28 +161,24 @@ consulta(c_incerto_001, (3,10,2025), p001, 40, 85, 125, desconhecido).
 excecao(consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso)) :-
     consulta(Id,Data,Pac,Idade,Dia,Sis,desconhecido).
 
-% IMPRECISO: valores de tensão flutuaram (Atualização do ID do paciente)
-excecao(consulta(c_impreciso_001,(4,10,2025),p002,53,91,158,74)).
-excecao(consulta(c_impreciso_001,(4,10,2025),p002,53,93,162,76)).
-
 % INTERDITO: paciente sem número de utente conhecido
 paciente(num_desconhecido, dario, (15,7,1980), masculino, 'desconhecido').
 excecao(paciente(Id,Nome,Data,Sexo,Morada)) :- 
-    paciente(num_desconhecido,Nome,Data,Sexo,Morada).
+    paciente(num_desconhecido,Nome,Data,Sexo,Morada),
+    Id == num_desconhecido.
 interdito(num_desconhecido).
 
 % INVARIANTES 
 +paciente(Id,Nome,Data,Sexo,Morada) ::
     (findall(Id, paciente(Id,_,_,_,_), S),
      comprimento(S,N),
-     N == 1).  % Permitir atualização se o ID já existir
+     N == 0).  
+
 +consulta(Id,_,_,_,_,_,_) ::
     (findall(Id, consulta(Id,_,_,_,_,_,_), S),
      comprimento(S,N),
-     N == 1).
+     N == 0).  
 
-
-% Valores fisiológicos realistas
 +consulta(_,_,_,_,Dia,Sis,Pulso) ::
     (Dia > 40, Dia < 200,
      Sis > 60, Sis < 300,
@@ -198,7 +212,7 @@ tem_hipertensao(IdPac) :-
 % --- Avaliação de Risco (Adaptado de TEst-2 para as novas Classes) ---
 
 avaliar_risco(Pac, baixo) :-
-    classificar_tensao(Pac, otima), !.
+    (classificar_tensao(Pac, otima); classificar_tensao(Pac, normal)), !.
 
 avaliar_risco(Pac, moderado) :-
     classificar_tensao(Pac, normal_alta), !.
@@ -264,25 +278,18 @@ listar_pacientes_aux([(Id,Nome,DataNasc,Sexo,Morada)|T]) :-
 
 % evolucao(+Termo) : insere Termo se todos os invariantes +Termo::Inv forem satisfeitos
 evolucao(Termo) :-
-    % recolher invariantes de inserção que correspondem a Termo
-    findall(Inv, clause((+Termo)::Inv, true), ListaInv),
-    % inserir candidato
-    assertz(Termo),
-    % testar invariantes; se falhar, desfazer e falhar
-    ( testar(ListaInv) -> true ; retract(Termo), fail ).
+    findall(Inv, (+Termo::Inv), ListaInv),
+    testar(ListaInv),
+    assertz(Termo).
 
 % involucao(+Termo) : remove Termo se todos os invariantes -Termo::Inv (se existirem) forem satisfeitos
 involucao(Termo) :-
-    % recolher invariantes de remoção que correspondem a Termo (caso existam)
-    findall(Inv, clause((-Termo)::Inv, true), ListaInv),
-    % remover candidato
-    retract(Termo),
-    % testar invariantes; se falhar, repor e falhar
-    ( testar(ListaInv) -> true ; assertz(Termo), fail ).
-
+    findall(Inv, (-Termo::Inv), ListaInv),
+    testar(ListaInv),
+    retract(Termo).
 
 % testar(+ListaInvariantes) : avalia cada invariante (cada Inv é um goal)
-testar([]).
+testar([]). 
 testar([Inv|R]) :-
     call(Inv),
     testar(R).
@@ -296,29 +303,25 @@ testar([Inv|R]) :-
 atualizar_paciente(Id, NovoNome, NovaData, NovoSexo, NovaRua) :-
     paciente(Id, _Nome, _Data, _Sexo, _Rua),
     retract(paciente(Id, _Nome, _Data, _Sexo, _Rua)),
-    assertz(paciente(Id, NovoNome, NovaData, NovoSexo, NovaRua)),
-    format('Paciente ~w atualizado com sucesso.~n', [Id]).
+    assertz(paciente(Id, NovoNome, NovaData, NovoSexo, NovaRua)).
 
 % atualizar_nome_paciente(+IdPaciente, +NovoNome)
 atualizar_nome_paciente(Id, NovoNome) :-
     paciente(Id, _Nome, Data, Sexo, Rua),
     retract(paciente(Id, _Nome, Data, Sexo, Rua)),
-    assertz(paciente(Id, NovoNome, Data, Sexo, Rua)),
-    format('Nome do paciente ~w atualizado para: ~w~n', [Id, NovoNome]).
+    assertz(paciente(Id, NovoNome, Data, Sexo, Rua)).
 
 % atualizar_data_paciente(+IdPaciente, +NovaData)
 atualizar_data_paciente(Id, NovaData) :-
     paciente(Id, Nome, _Data, Sexo, Rua),
     retract(paciente(Id, Nome, _Data, Sexo, Rua)),
-    assertz(paciente(Id, Nome, NovaData, Sexo, Rua)),
-    format('Data de nascimento do paciente ~w atualizada para: ~w~n', [Id, NovaData]).
+    assertz(paciente(Id, Nome, NovaData, Sexo, Rua)).
 
 % atualizar_morada_paciente(+IdPaciente, +NovaMorada)
 atualizar_morada_paciente(Id, NovaMorada) :-
     paciente(Id, Nome, Data, Sexo, _Rua),
     retract(paciente(Id, Nome, Data, Sexo, _Rua)),
-    assertz(paciente(Id, Nome, Data, Sexo, NovaMorada)),
-    format('Morada do paciente ~w atualizada para: ~w~n', [Id, NovaMorada]).
+    assertz(paciente(Id, Nome, Data, Sexo, NovaMorada)).
 
 
 
