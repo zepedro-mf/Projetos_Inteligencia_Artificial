@@ -1,11 +1,5 @@
 % =========================================================
-% Inteligência Artificial em Engenharia Biomédica
-% TRABALHO DE GRUPO - TEst-2 CONSOLIDADO (Integração de Módulo P2)
-% Versão: IDs Alfanuméricos (p001, c001, etc.)
-% =========================================================
-
-% =========================================================
-% SUPRESSÃO DE WARNINGS (adicionar no início do ficheiro)
+% SUPRESSÃO DE WARNINGS
 % =========================================================
 
 :- discontiguous paciente/5.
@@ -17,9 +11,9 @@
 % Desativar warnings de variáveis singleton
 :- style_check(-singleton).
 
-% --------------------------------------------
-% 0. Directives and Operators (Atualizados)
-% --------------------------------------------
+% =========================================================
+% 0. Directives and Operators 
+% =========================================================
 
 :- dynamic (paciente/5). 
 :- dynamic (consulta/7).
@@ -34,9 +28,9 @@
 :- op(900, xfy, 'e').
 :- op(900, xfy, 'ou').
 
-% --------------------------------------------
+% =========================================================
 % 1. SISTEMA DE INFERÊNCIA
-% --------------------------------------------
+% =========================================================
 
 % Negação por Falha (de Módulo P2.pl)
 nao(Questao) :- Questao, !, fail.
@@ -75,9 +69,9 @@ siD( Q1, Q2, falso) :-
     si(Q2, falso).
 siD( Q1, Q2, desconhecido) :- nao(siD(Q1, Q2, verdadeiro)), nao(siD(Q1, Q2, falso)).
 
-% --------------------------------------------
+% =========================================================
 % 2. COMPRIMENTO / AUXILIAR
-% --------------------------------------------
+% =========================================================
 
 comprimento([], 0).
 comprimento([_|T], N) :-
@@ -85,7 +79,7 @@ comprimento([_|T], N) :-
     N is N1 + 1.
 
 % =========================================================
-%             3. PRESSUPOSTO DO MUNDO FECHADO (CWA)
+% 3. PRESSUPOSTO DO MUNDO FECHADO (CWA)
 % =========================================================
 
 % CWA para paciente (Atualizado para aridade /5)
@@ -110,10 +104,10 @@ comprimento([_|T], N) :-
 -consulta(cons999, (14,2,2024), _, _, _, _, _).
 
 % =========================================================
-%             4. CONHECIMENTO PERFEITO
+% 4. CONHECIMENTO PERFEITO
 % =========================================================
 
-
+% paciente(IdPaciente, Nome, DataNascimento, Sexo, Morada)
 paciente(p001, 'Ana Silva', date(1980,5,10), 'feminino', 'Rua A, 12').
 paciente(p002, 'João Costa', date(1975,2,20), 'masculino', 'Rua B, 45').
 paciente(p003, 'Maria Dias', date(1990,7,1), 'feminino', 'Rua C, 9').
@@ -135,7 +129,6 @@ consulta(c007, (17,1,2024), p008, 48, 95, 152, 78). % Hipertensão Grau 1
 consulta(c008, (18,1,2024), p003, 55, 79, 119, 66). % TA Ótima
 consulta(c009, (19,1,2024), p009, 28, 58, 88, 62). % Hipotensão
 
-
 % tensao(Id, Class, SistInf, SistSup, DiastInf, DiastSup)
 tensao(ta01, hipotensao, 0, 90, 0, 60).
 tensao(ta02, otima, 90, 120, 60, 80).
@@ -146,14 +139,14 @@ tensao(ta06, hipertensao_grau2, 160, 180, 100, 110).
 tensao(ta07, hipertensao_grau3, 180, 300, 110, 300).
 
 % =========================================================
-%             5. CONHECIMENTO NEGATIVO
+% 5. CONHECIMENTO NEGATIVO
 % =========================================================
 
 % Negação para consistência: tensão sistólica deve ser sempre superior à diastólica
 -tensao(_,_,SistInf,_,DiastInf,_) :- SistInf < DiastInf.
 
 % =========================================================
-%             6. CONHECIMENTO IMPERFEITO
+% 6. CONHECIMENTO IMPERFEITO
 % =========================================================
 
 % INCERTO: pulsação não registada (Atualização do ID do paciente e consulta)
@@ -186,10 +179,10 @@ interdito(num_desconhecido).
      Sis > Dia).  % Sistólica > Diastólica
 
 % =========================================================
-%             9. RACIOCÍNIO: CLASSIFICAÇÃO E RISCO
+% 7. RACIOCÍNIO: CLASSIFICAÇÃO E RISCO
 % =========================================================
 
-% --- Classificação de Tensão Arterial (Nova regra de Módulo P2.pl) ---
+% Classificação de Tensão Arterial 
 classificar_ta(Sistolica, Diastolica, Res) :-
     tensao(_, Res, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup),
     Sistolica >= SistolicaInf,
@@ -197,20 +190,19 @@ classificar_ta(Sistolica, Diastolica, Res) :-
     Diastolica >= DiastolicaInf,
     Diastolica =< DiastolicaSup, !.
 
-% Classificação para um paciente (Adaptado para usar a nova classificar_ta/3)
+% Classificação para um paciente
 classificar_tensao(Pac, Classe) :-
     consulta(_,_,Pac,_,Diastolica,Sistolica,_),
     classificar_ta(Sistolica, Diastolica, Classe).
 
-% --- Verificação de Hipertensão (Nova regra de Módulo P2.pl) ---
+% Verificação de Hipertensão
 tem_hipertensao(IdPac) :-
     consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
     (classificar_ta(Sistolica, Diastolica, hipertensao_grau1);
      classificar_ta(Sistolica, Diastolica, hipertensao_grau2);
      classificar_ta(Sistolica, Diastolica, hipertensao_grau3)).
 
-% --- Avaliação de Risco (Adaptado de TEst-2 para as novas Classes) ---
-
+% Avaliação de Risco (Adaptado de TEst-2 para as novas Classes) 
 avaliar_risco(Pac, baixo) :-
     (classificar_tensao(Pac, otima); classificar_tensao(Pac, normal)), !.
 
@@ -223,10 +215,10 @@ avaliar_risco(Pac, alto) :-
 avaliar_risco(_, desconhecido).
 
 % =========================================================
-%             10. CONSULTAS E RELATÓRIOS
+% 8. CONSULTAS E RELATÓRIOS
 % =========================================================
 
-% Relatório detalhado (Atualizado para paciente/5)
+% Relatório detalhado
 relatorio_paciente_detalhado(Pac) :-
     paciente(Pac, Nome, DataNasc, Sexo, Morada),
     (classificar_tensao(Pac, Classe) -> true ; Classe = 'indeterminado'),
@@ -272,9 +264,9 @@ listar_pacientes_aux([(Id,Nome,DataNasc,Sexo,Morada)|T]) :-
     format('ID: ~w | Nome: ~w | Data Nasc: ~w | Sexo: ~w | Morada: ~w~n', [Id,Nome,DataNasc,Sexo,Morada]),
     listar_pacientes_aux(T).
 
-% ------------------------------------------------
-% 11. EVOLUÇÃO / INVOLUÇÃO (inserção / remoção segura com invariantes)
-% ------------------------------------------------
+% =========================================================
+% 9. EVOLUÇÃO / INVOLUÇÃO
+% =========================================================
 
 % evolucao(+Termo) : insere Termo se todos os invariantes +Termo::Inv forem satisfeitos
 evolucao(Termo) :-
@@ -294,9 +286,9 @@ testar([Inv|R]) :-
     call(Inv),
     testar(R).
 
-% ------------------------------------------------
+% =========================================================
 % 12. ATUALIZAÇÃO DE PACIENTES
-% ------------------------------------------------
+% =========================================================
 
 % atualizar_paciente(+IdPaciente, +NovoNome, +NovaData, +NovoSexo, +NovaRua)
 % Permite atualizar dados de um paciente existente
