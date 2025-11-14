@@ -16,7 +16,7 @@ siC(paciente(nao_existe,_,_,_,_), consulta(nao_existe,_,_,_,_,_,_), R8). % falso
 % ==================================================
 paciente(p001, Nome, Data, Sexo, Morada).          % Ana Silva
 consulta(c001, Data, Pac, Idade, Dia, Sis, Pulso). % p001, 82/125
-tensao(ta02, Class, SInf, SSup, DInf, DSup).       % otima: 90-120/60-80
+tensao_arterial(ta02, Class, SInf, SSup, DInf, DSup).       % otima: 90-120/60-80
 
 % ==================================================
 % TESTES CWA (PRESSUPOSTO MUNDO FECHADO)
@@ -41,9 +41,9 @@ classificar_ta(168, 105, Class3).                  % hipertensao_grau2
 classificar_ta(88, 58, Class4).                    % hipotensao
 classificar_ta(118, 76, Class5).                   % otima
 
-classificar_tensao(p001, Classe1).                 % normal
-classificar_tensao(p004, Classe2).                 % hipertensao_grau1
-classificar_tensao(p005, Classe3).                 % otima
+classificar_ta_paciente(p001).                 % normal
+classificar_ta_paciente(p004).                 % hipertensao_grau1
+classificar_ta_paciente(p005).                 % otima
 
 % ==================================================
 % TESTES HIPERTENSÃO E RISCO
@@ -68,7 +68,9 @@ avaliar_risco(p005, Risco4).                       % baixo
 % ==================================================
 listar_pacientes.
 relatorio_paciente_detalhado(p001).
-listar_consultas(p001).
+listar_consultas(p003).
+pacientes_hipertensos(Pacientes).
+pacientes_normal(Pacientes).
 
 % ==================================================
 % TESTES EVOLUÇÃO/INVOLUÇÃO

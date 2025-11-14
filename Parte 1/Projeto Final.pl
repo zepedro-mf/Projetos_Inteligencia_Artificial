@@ -79,23 +79,23 @@ comprimento([_|T], N) :-
     N is N1 + 1.
 
 % =========================================================
-% 3. PRESSUPOSTO DO MUNDO FECHADO (CWA)
+% 3. PRESSUPOSTO DO MUNDO FECHADO (PMF)
 % =========================================================
 
-% CWA para paciente (Atualizado para aridade /5)
+% PMF para paciente (Atualizado para aridade /5)
 -paciente(Id,Nome,DataNasc,Sexo,Morada) :-
     nao(paciente(Id,Nome,DataNasc,Sexo,Morada)),
     nao(excecao(paciente(Id,Nome,DataNasc,Sexo,Morada))).
 
-% CWA para consulta
+% PMF para consulta
 -consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso) :-
     nao(consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso)),
     nao(excecao(consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso))).
 
-% CWA para tensao
--tensao(Id,Class,SistInf,SistSup,DiastInf,DiastSup) :-
-    nao(tensao(Id,Class,SistInf,SistSup,DiastInf,DiastSup)),
-    nao(excecao(tensao(Id,Class,SistInf,SistSup,DiastInf,DiastSup))).
+% PMF para tensao
+-tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup) :-
+    nao(tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup)),
+    nao(excecao(tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup))).
 
 % Conhecimento perfeito negativo explícito (IDs não foram alterados aqui, pois são externos)
 -paciente(636237854, jose, (10,2,1969), masculino, cascais).
@@ -130,7 +130,7 @@ consulta(c008, (18,1,2024), p003, 55, 79, 119, 66). % TA Ótima
 consulta(c009, (19,1,2024), p009, 28, 58, 88, 62). % Hipotensão
 consulta(c001, (20,3,2024), p003, 38, 82, 125, 72). % TA Normal
 
-% tensao(Id, Class, SistInf, SistSup, DiastInf, DiastSup)
+% tensao_Arterial(Id, Class, SistInf, SistSup, DiastInf, DiastSup)
 tensao_arterial(ta01, hipotensao, 0, 90, 0, 60).
 tensao_arterial(ta02, otima, 90, 120, 60, 80).
 tensao_arterial(ta03, normal, 120, 130, 80, 85).
@@ -236,6 +236,9 @@ tem_hipertensao(IdPac) :-
      Classificacao = hipertensao_grau2;
      Classificacao = hipertensao_grau3).
 
+tem_hipotensao(IdPac) :-
+    classificar_tensao(IdPac, hipotensao).
+
 pacientes_hipertensos(Pacientes) :-
     findall(Nome, 
             (consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
@@ -266,11 +269,6 @@ pacientes_hipotensos(Pacientes) :-
              paciente(IdPac,Nome,_,_,_),
              classificar_ta(Sistolica, Diastolica, hipotensao)), 
             Pacientes).
-
-tem_ta_normal_ou_otima(IdPac) :-
-    consulta(_,_,IdPac,_,Diastolica,Sistolica,_),
-    (classificar_ta(Sistolica, Diastolica, otima);
-     classificar_ta(Sistolica, Diastolica, normal)).
 
 % =========================================================
 % 8. CONSULTAS E RELATÓRIOS
@@ -404,6 +402,3 @@ atualizar_morada_paciente(Id, NovaMorada) :-
     paciente(Id, Nome, Data, Sexo, _Rua),
     retract(paciente(Id, Nome, Data, Sexo, _Rua)),
     assertz(paciente(Id, Nome, Data, Sexo, NovaMorada)).
-
-
-
