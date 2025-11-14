@@ -183,7 +183,6 @@ interdito(num_desconhecido).
 % 7. RACIOCÍNIO: CLASSIFICAÇÃO E RISCO
 % =========================================================
 
-% Classificação de Tensão Arterial 
 classificar_ta(Sistolica, Diastolica, Res) :-
     tensao_arterial(_, Classificacao, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup),
     Sistolica >= SistolicaInf,
@@ -192,7 +191,6 @@ classificar_ta(Sistolica, Diastolica, Res) :-
     Diastolica =< DiastolicaSup,
     Res = Classificacao.
 
-% Classificação para um paciente
 classificar_ta_paciente_aux(IdPac, ConsultasClassificadas) :-
     findall((Data, Classificacao),
             (consulta(_, Data, IdPac, _, Diastolica, Sistolica, _),
@@ -218,7 +216,6 @@ listar_classificacoes_aux([(Data, Classificacao)|T]) :-
     format('  Data: ~w | Classificação: ~w~n', [Data, Classificacao]),
     listar_classificacoes_aux(T).
 
-% Avaliação de Risco (Adaptado de TEst-2 para as novas Classes) 
 avaliar_risco(Pac, baixo) :-
     (classificar_ta_paciente(Pac, otima); classificar_ta_paciente(Pac, normal)), !.
 
@@ -274,7 +271,6 @@ pacientes_hipotensos(Pacientes) :-
 % 8. CONSULTAS E RELATÓRIOS
 % =========================================================
 
-% Relatório detalhado
 relatorio_paciente_detalhado(Pac) :-
     paciente(Pac, Nome, DataNasc, Sexo, Morada),
     (classificar_ta_paciente(Pac, Classe) -> true ; Classe = 'indeterminado'),
@@ -290,8 +286,6 @@ relatorio_paciente_detalhado(Pac) :-
     format('--- Histórico de Consultas ---~n', []),
     listar_consultas(Pac).
 
-% Listar consultas de um paciente 
- Predicado principal: listar consultas ordenadas por data (mais recente primeiro)
 listar_consultas(Pac) :-
     findall((Data, Diastolica, Sistolica, Pulso), 
             consulta(_, Data, Pac, _, Diastolica, Sistolica, Pulso), 
@@ -304,7 +298,6 @@ listar_consultas(Pac) :-
         listar_consultas_aux(ConsultasOrdenadas)
     ).
 
-% Ordenar lista de consultas por data (mais recente primeiro)
 ordenar_consultas_por_data(Consultas, Ordenadas) :-
     ordenar_consultas_aux(Consultas, [], Ordenadas).
 
@@ -313,7 +306,6 @@ ordenar_consultas_aux([H|T], Accum, Ordenada) :-
     inserir_por_data(H, Accum, NovoAccum),
     ordenar_consultas_aux(T, NovoAccum, Ordenada).
 
-% Inserir uma consulta na posição correta (ordenado por data)
 inserir_por_data(Consulta, [], [Consulta]).
 inserir_por_data(Consulta, [H|T], [Consulta, H|T]) :-
     consulta_mais_recente(Consulta, H).
@@ -321,11 +313,9 @@ inserir_por_data(Consulta, [H|T], [H|T1]) :-
     \+ consulta_mais_recente(Consulta, H),
     inserir_por_data(Consulta, T, T1).
 
-% Verificar se a Consulta1 é mais recente que Consulta2
 consulta_mais_recente((Data1, _, _, _), (Data2, _, _, _)) :-
     data_mais_recente(Data1, Data2).
 
-% Comparar duas datas - retorna true se Data1 é mais recente que Data2
 data_mais_recente((D1, M1, A1), (D2, M2, A2)) :-
     (A1 > A2 -> true;
      A1 =:= A2, M1 > M2 -> true;
@@ -378,26 +368,21 @@ testar([Inv|R]) :-
 % 12. ATUALIZAÇÃO DE PACIENTES
 % =========================================================
 
-% atualizar_paciente(+IdPaciente, +NovoNome, +NovaData, +NovoSexo, +NovaRua)
-% Permite atualizar dados de um paciente existente
 atualizar_paciente(Id, NovoNome, NovaData, NovoSexo, NovaRua) :-
     paciente(Id, _Nome, _Data, _Sexo, _Rua),
     retract(paciente(Id, _Nome, _Data, _Sexo, _Rua)),
     assertz(paciente(Id, NovoNome, NovaData, NovoSexo, NovaRua)).
 
-% atualizar_nome_paciente(+IdPaciente, +NovoNome)
 atualizar_nome_paciente(Id, NovoNome) :-
     paciente(Id, _Nome, Data, Sexo, Rua),
     retract(paciente(Id, _Nome, Data, Sexo, Rua)),
     assertz(paciente(Id, NovoNome, Data, Sexo, Rua)).
 
-% atualizar_data_paciente(+IdPaciente, +NovaData)
 atualizar_data_paciente(Id, NovaData) :-
     paciente(Id, Nome, _Data, Sexo, Rua),
     retract(paciente(Id, Nome, _Data, Sexo, Rua)),
     assertz(paciente(Id, Nome, NovaData, Sexo, Rua)).
 
-% atualizar_morada_paciente(+IdPaciente, +NovaMorada)
 atualizar_morada_paciente(Id, NovaMorada) :-
     paciente(Id, Nome, Data, Sexo, _Rua),
     retract(paciente(Id, Nome, Data, Sexo, _Rua)),
