@@ -201,21 +201,6 @@ data_mais_recente((D1, M1, A1), (D2, M2, A2)) :-
      A1 =:= A2, M1 > M2 -> true;
      A1 =:= A2, M1 =:= M2, D1 > D2).
 
-relatorio_paciente_detalhado(Pac) :-
-    paciente(Pac, Nome, DataNasc, Sexo, Morada),
-    (classificar_tensao(Pac, Classe) -> true ; Classe = 'indeterminado'),
-    (avaliar_risco(Pac, Risco) -> true ; Risco = 'indeterminado'),
-    
-    format('=== RELATORIO MEDICO DETALHADO ===~n', []),
-    format('Paciente: ~w~n', [Nome]),
-    format('Data Nascimento: ~w~n', [DataNasc]),
-    format('Sexo: ~w~n', [Sexo]),
-    format('Morada: ~w~n', [Morada]),
-    format('Classificação Tensão: ~w~n', [Classe]),
-    format('Nível de Risco: ~w~n', [Risco]),
-    format('--- Histórico de Consultas ---~n', []),
-    listar_consultas(Pac).
-
 listar_classificacoes_com_risco_aux([]).
 listar_classificacoes_com_risco_aux([(Data, Classificacao)|T]) :-
     avaliar_risco_por_classificacao(Classificacao, Risco),
