@@ -48,10 +48,6 @@ classificar_ta_paciente(p005).                 % otima
 % ==================================================
 % TESTES HIPERTENSÃO E RISCO
 % ==================================================
-tem_hipertensao(p004).                             % true
-tem_hipertensao(p006).                             % true  
-tem_hipertensao(p001).                             % false
-
 avaliar_risco_paciente(p001).                       % baixo
 avaliar_risco_paciente(p002).                       % moderado
 avaliar_risco_paciente(p004).                       % alto
@@ -60,8 +56,8 @@ avaliar_risco_paciente(p005).                       % baixo
 % ==================================================
 % TESTES CONHECIMENTO NEGATIVO
 % ==================================================
--tensao(_,_,100,_,110,_).                          % true (SistInf < DiastInf)
--tensao(_,_,120,_,80,_).                           % false
+-tensao_arterial(_,_,100,_,110,_).                          % true (SistInf < DiastInf)
+-tensao_arterial(_,_,120,_,80,_).                           % false
 
 % ==================================================
 % TESTES RELATÓRIOS E LISTAGENS

@@ -200,21 +200,20 @@ data_mais_recente((D1, M1, A1), (D2, M2, A2)) :-
      A1 =:= A2, M1 > M2 -> true;
      A1 =:= A2, M1 =:= M2, D1 > D2).
 
-avaliar_risco_paciente(IdPac) :-
-    classificar_ta_paciente_aux(IdPac, ConsultasClassificadas),
-    (ConsultasClassificadas = [] -> 
-        format('Paciente ~w: Sem consultas registadas~n', [IdPac])
-    ;
-        (paciente(IdPac, Nome, _, _, _) -> 
-            format('Classificação TA e Risco de ~w:~n', [Nome, IdPac])
-        ;
-            format('Classificação TA e Risco do paciente ID ~w:~n', [IdPac])
-        ),
-        format('~-60s~n', ['']),  % Linha separadora
-        format('  Data          | Classificação    | Risco~n'),
-        format('~-60s~n', ['']),
-        listar_classificacoes_com_risco_aux(ConsultasClassificadas)
-    ).
+relatorio_paciente_detalhado(Pac) :-
+    paciente(Pac, Nome, DataNasc, Sexo, Morada),
+    (classificar_tensao(Pac, Classe) -> true ; Classe = 'indeterminado'),
+    (avaliar_risco(Pac, Risco) -> true ; Risco = 'indeterminado'),
+    
+    format('=== RELATORIO MEDICO DETALHADO ===~n', []),
+    format('Paciente: ~w~n', [Nome]),
+    format('Data Nascimento: ~w~n', [DataNasc]),
+    format('Sexo: ~w~n', [Sexo]),
+    format('Morada: ~w~n', [Morada]),
+    format('Classificação Tensão: ~w~n', [Classe]),
+    format('Nível de Risco: ~w~n', [Risco]),
+    format('--- Histórico de Consultas ---~n', []),
+    listar_consultas(Pac).
 
 listar_classificacoes_com_risco_aux([]).
 listar_classificacoes_com_risco_aux([(Data, Classificacao)|T]) :-
