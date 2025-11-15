@@ -29,7 +29,7 @@
 :- op(900, xfy, 'ou').
 
 % =========================================================
-% 4. CONHECIMENTO PERFEITO
+% 1. CONHECIMENTO PERFEITO
 % =========================================================
 
 % paciente(IdPaciente, Nome, DataNascimento, Sexo, Morada)
@@ -74,14 +74,14 @@ comprimento([_|T], N) :-
     N is N1 + 1.
 
 % =========================================================
-% 1. NEGAÇÃO POR FALHA
+% 3. NEGAÇÃO POR FALHA
 % =========================================================
 
 nao(Questao) :- Questao, !, fail.
 nao(_).
 
 % =========================================================
-% 3. CONHECIMENTO NEGATIVO COMPLETO
+% 4. CONHECIMENTO NEGATIVO COMPLETO
 % =========================================================
 
 % PRESSUPOSTO DO MUNDO FECHADO (PMF)
@@ -105,7 +105,7 @@ nao(_).
 -tensao_arterial(_,_,SistInf,_,DiastInf,_) :- SistInf < DiastInf.
 
 % =========================================================
-% 1. SISTEMA DE INFERÊNCIA
+% 5. SISTEMA DE INFERÊNCIA
 % =========================================================
 
 e_interdito(paciente(Id,_,_,_,_)) :- interdito(Id).
@@ -141,7 +141,7 @@ siD( Q1, Q2, falso) :-
 siD( Q1, Q2, desconhecido) :- nao(siD(Q1, Q2, verdadeiro)), nao(siD(Q1, Q2, falso)).
 
 % ===================================================================
-% 7. REGRAS DE DIAGNÓSTIVO A PARTIR DA ANÁLISE DA TENSÃO ARTERIAL
+% 6. REGRAS DE DIAGNÓSTIVO A PARTIR DA ANÁLISE DA TENSÃO ARTERIAL
 % ===================================================================
 
 classificar_ta(Sistolica, Diastolica, Res) :-
@@ -267,7 +267,7 @@ pacientes_hipotensos(Pacientes) :-
             Pacientes).
 
 % =========================================================
-% 8. CONSULTAS E RELATÓRIOS
+% 7. CONSULTAS E RELATÓRIOS
 % =========================================================
 
 relatorio_paciente_detalhado(Pac) :-
@@ -319,7 +319,7 @@ listar_pacientes_aux([(Id,Nome,DataNasc,Sexo,Morada)|T]) :-
     listar_pacientes_aux(T).
 
 % =========================================================
-% 6. CONHECIMENTO IMPERFEITO
+% 8. CONHECIMENTO IMPERFEITO
 % =========================================================
 
 % INCERTO: pulsação não registada (Atualização do ID do paciente e consulta)
