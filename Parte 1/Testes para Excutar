@@ -52,10 +52,10 @@ tem_hipertensao(p004).                             % true
 tem_hipertensao(p006).                             % true  
 tem_hipertensao(p001).                             % false
 
-avaliar_risco(p001, Risco1).                       % baixo
-avaliar_risco(p002, Risco2).                       % moderado
-avaliar_risco(p004, Risco3).                       % alto
-avaliar_risco(p005, Risco4).                       % baixo
+avaliar_risco_paciente(p001).                       % baixo
+avaliar_risco_paciente(p002).                       % moderado
+avaliar_risco_paciente(p004).                       % alto
+avaliar_risco_paciente(p005).                       % baixo
 
 % ==================================================
 % TESTES CONHECIMENTO NEGATIVO

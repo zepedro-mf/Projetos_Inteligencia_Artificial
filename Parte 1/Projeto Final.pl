@@ -29,81 +29,6 @@
 :- op(900, xfy, 'ou').
 
 % =========================================================
-% 1. SISTEMA DE INFERÊNCIA
-% =========================================================
-
-% Negação por Falha (de Módulo P2.pl)
-nao(Questao) :- Questao, !, fail.
-nao(_).
-
-% Verificação de interditos - trata como desconhecido
-e_interdito(paciente(Id,_,_,_,_)) :- interdito(Id).
-e_interdito(consulta(Id,_,_,_,_,_,_)) :- interdito(Id).
-e_interdito(tensao(Id,_,_,_,_,_)) :- interdito(Id).
-
-% Extensao do meta-predicado si: Questao, Resposta -> {V,F,D}
-si( Questao, desconhecido) :- e_interdito(Questao), !.
-si( Questao, verdadeiro):- Questao.
-si( Questao, falso):- -Questao.
-si( Questao, desconhecido) :- nao(Questao), nao(-Questao).
-
-% Extensao do meta-predicado siC: Questao1, Questao2, Resposta -> {V,F,D}
-siC( Q1, Q2, verdadeiro) :- 
-    si(Q1, verdadeiro), 
-    si(Q2, verdadeiro).
-siC( Q1, Q2, falso) :- 
-    si(Q1, verdadeiro), 
-    si(Q2, falso);
-    si(Q1, falso), 
-    si(Q2, verdadeiro);
-    si(Q1, falso), 
-    si(Q2, falso).
-siC( Q1, Q2, desconhecido) :- nao(siC(Q1, Q2, verdadeiro)), nao(siC(Q1, Q2, falso)).
-
-% Extensao do meta-predicado siD: Questao1, Questao2, Resposta -> {V,F,D}
-siD( Q1, Q2, verdadeiro) :- 
-    si(Q1, verdadeiro); 
-    si(Q2, verdadeiro).
-siD( Q1, Q2, falso) :- 
-    si(Q1, falso), 
-    si(Q2, falso).
-siD( Q1, Q2, desconhecido) :- nao(siD(Q1, Q2, verdadeiro)), nao(siD(Q1, Q2, falso)).
-
-% =========================================================
-% 2. COMPRIMENTO / AUXILIAR
-% =========================================================
-
-comprimento([], 0).
-comprimento([_|T], N) :-
-    comprimento(T, N1),
-    N is N1 + 1.
-
-% =========================================================
-% 3. PRESSUPOSTO DO MUNDO FECHADO (PMF)
-% =========================================================
-
-% PMF para paciente (Atualizado para aridade /5)
--paciente(Id,Nome,DataNasc,Sexo,Morada) :-
-    nao(paciente(Id,Nome,DataNasc,Sexo,Morada)),
-    nao(excecao(paciente(Id,Nome,DataNasc,Sexo,Morada))).
-
-% PMF para consulta
--consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso) :-
-    nao(consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso)),
-    nao(excecao(consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso))).
-
-% PMF para tensao
--tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup) :-
-    nao(tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup)),
-    nao(excecao(tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup))).
-
-% Conhecimento perfeito negativo explícito (IDs não foram alterados aqui, pois são externos)
--paciente(636237854, jose, (10,2,1969), masculino, cascais).
--paciente(325544694, ricardo, (5,5,2005), masculino, faro).
--consulta(_, (25,12,2023), _, _, _, _, _).
--consulta(cons999, (14,2,2024), _, _, _, _, _).
-
-% =========================================================
 % 4. CONHECIMENTO PERFEITO
 % =========================================================
 
@@ -140,48 +65,84 @@ tensao_arterial(ta06, hipertensao_grau2, 160, 180, 100, 110).
 tensao_arterial(ta07, hipertensao_grau3, 180, 300, 110, 300).
 
 % =========================================================
-% 5. CONHECIMENTO NEGATIVO
+% 2. COMPRIMENTO / AUXILIAR
 % =========================================================
 
-% Negação para consistência: tensão sistólica deve ser sempre superior à diastólica
+comprimento([], 0).
+comprimento([_|T], N) :-
+    comprimento(T, N1),
+    N is N1 + 1.
+
+% =========================================================
+% 1. NEGAÇÃO POR FALHA
+% =========================================================
+
+nao(Questao) :- Questao, !, fail.
+nao(_).
+
+% =========================================================
+% 3. CONHECIMENTO NEGATIVO COMPLETO
+% =========================================================
+
+% PRESSUPOSTO DO MUNDO FECHADO (PMF)
+-paciente(Id,Nome,DataNasc,Sexo,Morada) :-
+    nao(paciente(Id,Nome,DataNasc,Sexo,Morada)),
+    nao(excecao(paciente(Id,Nome,DataNasc,Sexo,Morada))).
+
+-consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso) :-
+    nao(consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso)),
+    nao(excecao(consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso))).
+
+-tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup) :-
+    nao(tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup)),
+    nao(excecao(tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup))).
+
+% CONHECIMENTO NEGATIVO EXPLÍCITO
+-paciente(636237854, jose, (10,2,1969), masculino, cascais).
+-paciente(325544694, ricardo, (5,5,2005), masculino, faro).
+-consulta(_, (25,12,2023), _, _, _, _, _).
+-consulta(cons999, (14,2,2024), _, _, _, _, _).
 -tensao_arterial(_,_,SistInf,_,DiastInf,_) :- SistInf < DiastInf.
 
 % =========================================================
-% 6. CONHECIMENTO IMPERFEITO
+% 1. SISTEMA DE INFERÊNCIA
 % =========================================================
 
-% INCERTO: pulsação não registada (Atualização do ID do paciente e consulta)
-consulta(c_incerto_001, (3,10,2025), p001, 40, 85, 125, desconhecido).
-excecao(consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso)) :-
-    consulta(Id,Data,Pac,Idade,Dia,Sis,desconhecido).
+e_interdito(paciente(Id,_,_,_,_)) :- interdito(Id).
+e_interdito(consulta(Id,_,_,_,_,_,_)) :- interdito(Id).
+e_interdito(tensao(Id,_,_,_,_,_)) :- interdito(Id).
 
-% INTERDITO: paciente sem número de utente conhecido
-paciente(num_desconhecido, dario, (15,7,1980), masculino, 'desconhecido').
-excecao(paciente(Id,Nome,Data,Sexo,Morada)) :- 
-    paciente(num_desconhecido,Nome,Data,Sexo,Morada),
-    Id == num_desconhecido.
-interdito(num_desconhecido).
+% Extensao do meta-predicado si: Questao, Resposta -> {V,F,D}
+si( Questao, desconhecido) :- e_interdito(Questao), !.
+si( Questao, verdadeiro):- Questao.
+si( Questao, falso):- -Questao.
+si( Questao, desconhecido) :- nao(Questao), nao(-Questao).
 
-% INVARIANTES 
-+paciente(Id,Nome,Data,Sexo,Morada) ::
-    (findall(Id, paciente(Id,_,_,_,_), S),
-     comprimento(S,N),
-     N == 0).  
+% Extensao do meta-predicado siC: Questao1, Questao2, Resposta -> {V,F,D}
+siC( Q1, Q2, verdadeiro) :- 
+    si(Q1, verdadeiro), 
+    si(Q2, verdadeiro).
+siC( Q1, Q2, falso) :- 
+    si(Q1, verdadeiro), 
+    si(Q2, falso);
+    si(Q1, falso), 
+    si(Q2, verdadeiro);
+    si(Q1, falso), 
+    si(Q2, falso).
+siC( Q1, Q2, desconhecido) :- nao(siC(Q1, Q2, verdadeiro)), nao(siC(Q1, Q2, falso)).
 
-+consulta(Id,_,_,_,_,_,_) ::
-    (findall(Id, consulta(Id,_,_,_,_,_,_), S),
-     comprimento(S,N),
-     N == 0).  
+% Extensao do meta-predicado siD: Questao1, Questao2, Resposta -> {V,F,D}
+siD( Q1, Q2, verdadeiro) :- 
+    si(Q1, verdadeiro); 
+    si(Q2, verdadeiro).
+siD( Q1, Q2, falso) :- 
+    si(Q1, falso), 
+    si(Q2, falso).
+siD( Q1, Q2, desconhecido) :- nao(siD(Q1, Q2, verdadeiro)), nao(siD(Q1, Q2, falso)).
 
-+consulta(_,_,_,_,Dia,Sis,Pulso) ::
-    (Dia > 40, Dia < 200,
-     Sis > 60, Sis < 300,
-     Pulso > 30, Pulso < 200,
-     Sis > Dia).  % Sistólica > Diastólica
-
-% =========================================================
-% 7. RACIOCÍNIO: CLASSIFICAÇÃO E RISCO
-% =========================================================
+% ===================================================================
+% 7. REGRAS DE DIAGNÓSTIVO A PARTIR DA ANÁLISE DA TENSÃO ARTERIAL
+% ===================================================================
 
 classificar_ta(Sistolica, Diastolica, Res) :-
     tensao_arterial(_, Classificacao, SistolicaInf, SistolicaSup, DiastolicaInf, DiastolicaSup),
@@ -216,25 +177,63 @@ listar_classificacoes_aux([(Data, Classificacao)|T]) :-
     format('  Data: ~w | Classificação: ~w~n', [Data, Classificacao]),
     listar_classificacoes_aux(T).
 
-avaliar_risco(Pac, baixo) :-
-    (classificar_ta_paciente(Pac, otima); classificar_ta_paciente(Pac, normal)), !.
+ordenar_consultas_por_data(Consultas, Ordenadas) :-
+    ordenar_consultas_aux(Consultas, [], Ordenadas).
 
-avaliar_risco(Pac, moderado) :-
-    classificar_ta_paciente(Pac, normal_alta), !.
+ordenar_consultas_aux([], Ordenada, Ordenada).
+ordenar_consultas_aux([H|T], Accum, Ordenada) :-
+    inserir_por_data(H, Accum, NovoAccum),
+    ordenar_consultas_aux(T, NovoAccum, Ordenada).
 
-avaliar_risco(Pac, alto) :-
-    tem_hipertensao(Pac), !.
+inserir_por_data(Consulta, [], [Consulta]).
+inserir_por_data(Consulta, [H|T], [Consulta, H|T]) :-
+    consulta_mais_recente(Consulta, H).
+inserir_por_data(Consulta, [H|T], [H|T1]) :-
+    \+ consulta_mais_recente(Consulta, H),
+    inserir_por_data(Consulta, T, T1).
 
-avaliar_risco(_, desconhecido).
+consulta_mais_recente((Data1, _, _, _), (Data2, _, _, _)) :-
+    data_mais_recente(Data1, Data2).
 
-tem_hipertensao(IdPac) :-
-    classificar_tensao(IdPac, Classificacao),
+data_mais_recente((D1, M1, A1), (D2, M2, A2)) :-
+    (A1 > A2 -> true;
+     A1 =:= A2, M1 > M2 -> true;
+     A1 =:= A2, M1 =:= M2, D1 > D2).
+
+avaliar_risco_paciente(IdPac) :-
+    classificar_ta_paciente_aux(IdPac, ConsultasClassificadas),
+    (ConsultasClassificadas = [] -> 
+        format('Paciente ~w: Sem consultas registadas~n', [IdPac])
+    ;
+        (paciente(IdPac, Nome, _, _, _) -> 
+            format('Classificação TA e Risco de ~w:~n', [Nome, IdPac])
+        ;
+            format('Classificação TA e Risco do paciente ID ~w:~n', [IdPac])
+        ),
+        format('~-60s~n', ['']),  % Linha separadora
+        format('  Data          | Classificação    | Risco~n'),
+        format('~-60s~n', ['']),
+        listar_classificacoes_com_risco_aux(ConsultasClassificadas)
+    ).
+
+listar_classificacoes_com_risco_aux([]).
+listar_classificacoes_com_risco_aux([(Data, Classificacao)|T]) :-
+    avaliar_risco_por_classificacao(Classificacao, Risco),
+    format('  ~-13w | ~-16w | ~w~n', [Data, Classificacao, Risco]),
+    listar_classificacoes_com_risco_aux(T).
+
+avaliar_risco_por_classificacao(Classificacao, baixo) :-
+    (Classificacao = otima; Classificacao = normal).
+
+avaliar_risco_por_classificacao(normal_alta, moderado).
+avaliar_risco_por_classificacao(hipotensao, moderado).
+
+avaliar_risco_por_classificacao(Classificacao, alto) :-
     (Classificacao = hipertensao_grau1;
      Classificacao = hipertensao_grau2;
      Classificacao = hipertensao_grau3).
 
-tem_hipotensao(IdPac) :-
-    classificar_tensao(IdPac, hipotensao).
+avaliar_risco_por_classificacao(_, desconhecido).
 
 pacientes_hipertensos(Pacientes) :-
     findall(Nome, 
@@ -298,32 +297,9 @@ listar_consultas(Pac) :-
         listar_consultas_aux(ConsultasOrdenadas)
     ).
 
-ordenar_consultas_por_data(Consultas, Ordenadas) :-
-    ordenar_consultas_aux(Consultas, [], Ordenadas).
-
-ordenar_consultas_aux([], Ordenada, Ordenada).
-ordenar_consultas_aux([H|T], Accum, Ordenada) :-
-    inserir_por_data(H, Accum, NovoAccum),
-    ordenar_consultas_aux(T, NovoAccum, Ordenada).
-
-inserir_por_data(Consulta, [], [Consulta]).
-inserir_por_data(Consulta, [H|T], [Consulta, H|T]) :-
-    consulta_mais_recente(Consulta, H).
-inserir_por_data(Consulta, [H|T], [H|T1]) :-
-    \+ consulta_mais_recente(Consulta, H),
-    inserir_por_data(Consulta, T, T1).
-
-consulta_mais_recente((Data1, _, _, _), (Data2, _, _, _)) :-
-    data_mais_recente(Data1, Data2).
-
-data_mais_recente((D1, M1, A1), (D2, M2, A2)) :-
-    (A1 > A2 -> true;
-     A1 =:= A2, M1 > M2 -> true;
-     A1 =:= A2, M1 =:= M2, D1 > D2).
-
 listar_consultas_aux([]).
 listar_consultas_aux([(Data, Dia, Sis, Pulso)|T]) :-
-    classificar_ta(Sis, Dia, Classificacao),  % CALCULAR classificação
+    classificar_ta(Sis, Dia, Classificacao),
     format('  Data: ~w | TA Diastólica: ~w | TA Sistólica: ~w | Pulsação: ~w | Classificação: ~w~n', 
            [Data, Dia, Sis, Pulso, Classificacao]),
     listar_consultas_aux(T).
@@ -341,6 +317,39 @@ listar_pacientes_aux([]).
 listar_pacientes_aux([(Id,Nome,DataNasc,Sexo,Morada)|T]) :-
     format('ID: ~w | Nome: ~w | Data Nasc: ~w | Sexo: ~w | Morada: ~w~n', [Id,Nome,DataNasc,Sexo,Morada]),
     listar_pacientes_aux(T).
+
+% =========================================================
+% 6. CONHECIMENTO IMPERFEITO
+% =========================================================
+
+% INCERTO: pulsação não registada (Atualização do ID do paciente e consulta)
+consulta(c_incerto_001, (3,10,2025), p001, 40, 85, 125, desconhecido).
+excecao(consulta(Id,Data,Pac,Idade,Dia,Sis,Pulso)) :-
+    consulta(Id,Data,Pac,Idade,Dia,Sis,desconhecido).
+
+% INTERDITO: paciente sem número de utente conhecido
+paciente(num_desconhecido, dario, (15,7,1980), masculino, 'desconhecido').
+excecao(paciente(Id,Nome,Data,Sexo,Morada)) :- 
+    paciente(num_desconhecido,Nome,Data,Sexo,Morada),
+    Id == num_desconhecido.
+interdito(num_desconhecido).
+
+% INVARIANTES 
++paciente(Id,Nome,Data,Sexo,Morada) ::
+    (findall(Id, paciente(Id,_,_,_,_), S),
+     comprimento(S,N),
+     N == 0).  
+
++consulta(Id,_,_,_,_,_,_) ::
+    (findall(Id, consulta(Id,_,_,_,_,_,_), S),
+     comprimento(S,N),
+     N == 0).  
+
++consulta(_,_,_,_,Dia,Sis,Pulso) ::
+    (Dia > 40, Dia < 200,
+     Sis > 60, Sis < 300,
+     Pulso > 30, Pulso < 200,
+     Sis > Dia).  % Sistólica > Diastólica
 
 % =========================================================
 % 9. EVOLUÇÃO / INVOLUÇÃO
