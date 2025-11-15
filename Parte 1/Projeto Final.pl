@@ -6,6 +6,7 @@
 :- discontiguous consulta/7.
 :- discontiguous tensao/6.
 :- discontiguous excecao/1.
+:- discontiguous relatorio_paciente_detalhado/1
 :- discontiguous (-)/1.
 
 % Desativar warnings de variáveis singleton
@@ -268,10 +269,14 @@ pacientes_hipotensos(Pacientes) :-
 % =========================================================
 % 7. CONSULTAS E RELATÓRIOS
 % =========================================================
+classificar_tensao(IdPac, Classe) :-
+    consulta(_, Data, IdPac, _, Diastolica, Sistolica, _),
+    \+ (consulta(_, OutraData, IdPac, _, _, _, _), data_mais_recente(OutraData, Data)),
+    classificar_ta(Sistolica, Diastolica, Classificacao).
 
 relatorio_paciente_detalhado(Pac) :-
     paciente(Pac, Nome, DataNasc, Sexo, Morada),
-    (classificar_ta_paciente(Pac, Classe) -> true ; Classe = 'indeterminado'),
+    (classificar_tensao(Pac, Classe) -> true ; Classe = 'indeterminado'),
     (avaliar_risco(Pac, Risco) -> true ; Risco = 'indeterminado'),
     
     format('=== RELATORIO MEDICO DETALHADO ===~n', []),
