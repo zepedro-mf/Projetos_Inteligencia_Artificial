@@ -277,7 +277,6 @@ classificar_tensao(IdPac, Classe) :-
 relatorio_paciente_detalhado(Pac) :-
     paciente(Pac, Nome, DataNasc, Sexo, Morada),
     (classificar_tensao(Pac, Classe) -> true ; Classe = 'indeterminado'),
-    (avaliar_risco(Pac, Risco) -> true ; Risco = 'indeterminado'),
     
     format('=== RELATORIO MEDICO DETALHADO ===~n', []),
     format('Paciente: ~w~n', [Nome]),
@@ -285,7 +284,6 @@ relatorio_paciente_detalhado(Pac) :-
     format('Sexo: ~w~n', [Sexo]),
     format('Morada: ~w~n', [Morada]),
     format('Classificação Tensão: ~w~n', [Classe]),
-    format('Nível de Risco: ~w~n', [Risco]),
     format('--- Histórico de Consultas ---~n', []),
     listar_consultas(Pac).
 
