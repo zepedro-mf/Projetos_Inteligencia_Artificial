@@ -357,18 +357,19 @@ interdito(num_desconhecido).
 % =========================================================
 
 % evolucao(+Termo) : insere Termo se todos os invariantes +Termo::Inv forem satisfeitos
+% involucao(+Termo) : remove Termo se todos os invariantes -Termo::Inv (se existirem) forem satisfeitos
+% testar(+ListaInvariantes) : avalia cada invariante (cada Inv é um goal)
+
 evolucao(Termo) :-
     findall(Inv, (+Termo::Inv), ListaInv),
     testar(ListaInv),
     assertz(Termo).
 
-% involucao(+Termo) : remove Termo se todos os invariantes -Termo::Inv (se existirem) forem satisfeitos
 involucao(Termo) :-
     findall(Inv, (-Termo::Inv), ListaInv),
     testar(ListaInv),
     retract(Termo).
 
-% testar(+ListaInvariantes) : avalia cada invariante (cada Inv é um goal)
 testar([]). 
 testar([Inv|R]) :-
     call(Inv),
