@@ -85,7 +85,6 @@ nao(_).
 % 4. CONHECIMENTO NEGATIVO COMPLETO
 % =========================================================
 
-% PRESSUPOSTO DO MUNDO FECHADO (PMF)
 -paciente(Id,Nome,DataNasc,Sexo,Morada) :-
     nao(paciente(Id,Nome,DataNasc,Sexo,Morada)),
     nao(excecao(paciente(Id,Nome,DataNasc,Sexo,Morada))).
@@ -98,7 +97,6 @@ nao(_).
     nao(tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup)),
     nao(excecao(tensao_arterial(Id,Class,SistInf,SistSup,DiastInf,DiastSup))).
 
-% CONHECIMENTO NEGATIVO EXPLÍCITO
 -paciente(636237854, jose, (10,2,1969), masculino, cascais).
 -paciente(325544694, ricardo, (5,5,2005), masculino, faro).
 -consulta(_, (25,12,2023), _, _, _, _, _).
@@ -200,6 +198,22 @@ data_mais_recente((D1, M1, A1), (D2, M2, A2)) :-
     (A1 > A2 -> true;
      A1 =:= A2, M1 > M2 -> true;
      A1 =:= A2, M1 =:= M2, D1 > D2).
+
+avaliar_risco_paciente(IdPac) :-
+    classificar_ta_paciente_aux(IdPac, ConsultasClassificadas),
+    (ConsultasClassificadas = [] -> 
+        format('Paciente ~w: Sem consultas registadas~n', [IdPac])
+    ;
+        (paciente(IdPac, Nome, _, _, _) -> 
+            format('Classificação TA e Risco de ~w:~n', [Nome, IdPac])
+        ;
+            format('Classificação TA e Risco do paciente ID ~w:~n', [IdPac])
+        ),
+        format('~-60s~n', ['']),  % Linha separadora
+        format('  Data          | Classificação    | Risco~n'),
+        format('~-60s~n', ['']),
+        listar_classificacoes_com_risco_aux(ConsultasClassificadas)
+    ).
 
 listar_classificacoes_com_risco_aux([]).
 listar_classificacoes_com_risco_aux([(Data, Classificacao)|T]) :-
