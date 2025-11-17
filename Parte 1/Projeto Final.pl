@@ -215,6 +215,19 @@ avaliar_risco_paciente(IdPac) :-
         listar_classificacoes_com_risco_aux(ConsultasClassificadas)
     ).
 
+avaliar_risco_por_classificacao(Classificacao, baixo) :-
+    (Classificacao = otima; Classificacao = normal).
+
+avaliar_risco_por_classificacao(normal_alta, moderado).
+avaliar_risco_por_classificacao(hipotensao, moderado).
+
+avaliar_risco_por_classificacao(Classificacao, alto) :-
+    (Classificacao = hipertensao_grau1;
+     Classificacao = hipertensao_grau2;
+     Classificacao = hipertensao_grau3).
+
+avaliar_risco_por_classificacao(_, desconhecido).
+
 listar_classificacoes_com_risco_aux([]).
 listar_classificacoes_com_risco_aux([(Data, Classificacao)|T]) :-
     avaliar_risco_por_classificacao(Classificacao, Risco),
