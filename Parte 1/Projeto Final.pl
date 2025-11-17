@@ -209,14 +209,16 @@ avaliar_risco_paciente(IdPac) :-
         ;
             format('Classificação TA e Risco do paciente ID ~w:~n', [IdPac])
         ),
-        format('----------------------------------------~n', []),
+        format('------------------------------------------------------------~n', []),
+        format('  Data          | Classificação    | Risco~n'),
+        format('------------------------------------------------------------~n', []),
         listar_classificacoes_com_risco_aux(ConsultasClassificadas)
     ).
 
 listar_classificacoes_com_risco_aux([]).
 listar_classificacoes_com_risco_aux([(Data, Classificacao)|T]) :-
     avaliar_risco_por_classificacao(Classificacao, Risco),
-    format('Data: ~w | Classificação: ~w | Risco: ~w~n', [Data, Classificacao, Risco]),
+    format('  ~w | ~w | ~w~n', [Data, Classificacao, Risco]),
     listar_classificacoes_com_risco_aux(T).
 
 pacientes_hipertensos(Pacientes) :-
