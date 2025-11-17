@@ -205,34 +205,19 @@ avaliar_risco_paciente(IdPac) :-
         format('Paciente ~w: Sem consultas registadas~n', [IdPac])
     ;
         (paciente(IdPac, Nome, _, _, _) -> 
-            format('Classificação TA e Risco de ~w:~n', [Nome, IdPac])
+            format('Classificação TA e Risco de ~w (ID: ~w):~n', [Nome, IdPac])
         ;
             format('Classificação TA e Risco do paciente ID ~w:~n', [IdPac])
         ),
-        format('~-60s~n', ['']),  % Linha separadora
-        format('  Data          | Classificação    | Risco~n'),
-        format('~-60s~n', ['']),
+        format('----------------------------------------~n', []),
         listar_classificacoes_com_risco_aux(ConsultasClassificadas)
     ).
 
 listar_classificacoes_com_risco_aux([]).
 listar_classificacoes_com_risco_aux([(Data, Classificacao)|T]) :-
     avaliar_risco_por_classificacao(Classificacao, Risco),
-    format('  ~-13w | ~-16w | ~w~n', [Data, Classificacao, Risco]),
+    format('Data: ~w | Classificação: ~w | Risco: ~w~n', [Data, Classificacao, Risco]),
     listar_classificacoes_com_risco_aux(T).
-
-avaliar_risco_por_classificacao(Classificacao, baixo) :-
-    (Classificacao = otima; Classificacao = normal).
-
-avaliar_risco_por_classificacao(normal_alta, moderado).
-avaliar_risco_por_classificacao(hipotensao, moderado).
-
-avaliar_risco_por_classificacao(Classificacao, alto) :-
-    (Classificacao = hipertensao_grau1;
-     Classificacao = hipertensao_grau2;
-     Classificacao = hipertensao_grau3).
-
-avaliar_risco_por_classificacao(_, desconhecido).
 
 pacientes_hipertensos(Pacientes) :-
     findall(Nome, 
